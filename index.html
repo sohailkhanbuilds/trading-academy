@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Academy — Prop Firm Masterclass</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --green: #00ff88;
+    --red: #ff4466;
+    --yellow: #ffd60a;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TICKER */
+  .ticker-bar {
+    background: var(--accent2);
+    padding: 6px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: scroll 30s linear infinite;
+  }
+  .ticker-inner span { margin: 0 24px; font-size: 11px; letter-spacing: 1px; }
+  .up { color: var(--green); }
+  .dn { color: var(--red); }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* HEADER */
+  header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-box {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #000;
+  }
+  header h1 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+  header h1 span { color: var(--accent); }
+  .tagline { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* PROGRESS */
+  .progress-wrap {
+    padding: 14px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .progress-track { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    border-right: 1px solid var(--border);
+    height: calc(100vh - 122px);
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .module-group { border-bottom: 1px solid var(--border); }
+  .module-header {
+    padding: 12px 16px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    background: var(--surface);
+  }
+  .lesson-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .lesson-item:hover { background: var(--card); }
+  .lesson-item.active { background: var(--card); border-left-color: var(--accent); color: var(--accent); }
+  .lesson-item.done { color: var(--green); }
+  .lesson-item.done .dot { background: var(--green); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .lesson-item.active .dot { background: var(--accent); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    height: calc(100vh - 122px);
+  }
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .lesson-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .lesson-title span { color: var(--accent); }
+  .lesson-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-beginner { background: rgba(0,229,255,0.1); color: var(--accent); }
+  .badge-intermediate { background: rgba(124,58,237,0.2); color: #a78bfa; }
+  .badge-advanced { background: rgba(255,68,102,0.15); color: var(--red); }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .info-card h4 { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .info-card p { font-size: 12px; line-height: 1.7; }
+
+  .concept-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .concept-block h3 { font-family: 'Syne', sans-serif; font-size: 14px; margin-bottom: 8px; color: var(--accent); }
+  .concept-block p, .concept-block ul { font-size: 12px; line-height: 1.8; color: #c8c8d8; }
+  .concept-block ul { padding-left: 16px; }
+  .concept-block li { margin-bottom: 4px; }
+
+  .highlight {
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  .highlight strong { color: var(--accent); }
+
+  .warning-box {
+    background: rgba(255,214,10,0.06);
+    border: 1px solid rgba(255,214,10,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  .warning-box strong { color: var(--yellow); }
+
+  .formula {
+    background: #0d0d1a;
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin: 12px 0;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  /* AI SECTION */
+  .ai-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 20px;
+  }
+  .ai-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .ai-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .ai-section-header h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+  .ai-section-header p { font-size: 10px; color: var(--muted); }
+
+  .quick-questions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .qq-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.2s;
+  }
+  .qq-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+
+  .chat-area {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-height: 120px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 14px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .chat-area::-webkit-scrollbar { width: 3px; }
+  .chat-area::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .chat-msg { margin-bottom: 12px; }
+  .chat-msg.user .chat-bubble {
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 8px 8px 2px 8px;
+    padding: 8px 12px;
+    display: inline-block;
+    max-width: 85%;
+    float: right;
+    clear: both;
+  }
+  .chat-msg.ai .chat-bubble {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px 8px 8px 2px;
+    padding: 8px 12px;
+    display: inline-block;
+    max-width: 90%;
+    float: left;
+    clear: both;
+    color: #d0d0e0;
+  }
+  .chat-clear { clear: both; }
+  .chat-name { font-size: 9px; color: var(--muted); margin-bottom: 3px; }
+
+  .typing-dots span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: bounce 1s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus { border-color: var(--accent); }
+  .send-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    transition: opacity 0.2s;
+  }
+  .send-btn:hover { opacity: 0.85; }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .nav-row { display: flex; gap: 10px; margin-top: 20px; }
+  .nav-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .nav-btn-prev { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+  .nav-btn-prev:hover { border-color: var(--text); color: var(--text); }
+  .nav-btn-next { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; }
+  .nav-btn-next:hover { opacity: 0.9; }
+  .done-btn { background: rgba(0,255,136,0.1); border: 1px solid var(--green); color: var(--green); margin-left: auto; }
+  .done-btn:hover { background: rgba(0,255,136,0.2); }
+
+  .placeholder-msg { color: var(--muted); font-size: 11px; text-align: center; padding: 20px; line-height: 2; }
+  .placeholder-msg span { color: var(--accent); }
+
+  @media(max-width: 640px) {
+    .sidebar { display: none; }
+    .info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <span>NIFTY 50 <span class="up">▲ 0.42%</span></span>
+    <span>SENSEX <span class="up">▲ 0.38%</span></span>
+    <span>GOLD <span class="dn">▼ 0.12%</span></span>
+    <span>USD/INR <span class="up">▲ 0.08%</span></span>
+    <span>BTC/USD <span class="up">▲ 1.24%</span></span>
+    <span>EUR/USD <span class="dn">▼ 0.05%</span></span>
+    <span>CRUDE OIL <span class="dn">▼ 0.91%</span></span>
+    <span>BANK NIFTY <span class="up">▲ 0.55%</span></span>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <span>NIFTY 50 <span class="up">▲ 0.42%</span></span>
+    <span>SENSEX <span class="up">▲ 0.38%</span></span>
+    <span>GOLD <span class="dn">▼ 0.12%</span></span>
+    <span>USD/INR <span class="up">▲ 0.08%</span></span>
+    <span>BTC/USD <span class="up">▲ 1.24%</span></span>
+    <span>EUR/USD <span class="dn">▼ 0.05%</span></span>
+    <span>CRUDE OIL <span class="dn">▼ 0.91%</span></span>
+    <span>BANK NIFTY <span class="up">▲ 0.55%</span></span>
+  </div>
+</div>
+
+<header>
+  <div class="logo-box">TA</div>
+  <div>
+    <h1>Trading <span>Academy</span></h1>
+    <div class="tagline">Prop Firm Challenge Prep • Zero to Funded Trader</div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span id="progress-text">0 / 12 Lessons Complete</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="module-group">
+      <div class="module-header">📚 Module 1 — Basics</div>
+      <div class="lesson-item active" data-id="0"><div class="dot"></div>Trading kya hota hai?</div>
+      <div class="lesson-item" data-id="1"><div class="dot"></div>Market Types</div>
+      <div class="lesson-item" data-id="2"><div class="dot"></div>Candlestick Charts</div>
+    </div>
+    <div class="module-group">
+      <div class="module-header">📊 Module 2 — Technical Analysis</div>
+      <div class="lesson-item" data-id="3"><div class="dot"></div>Support & Resistance</div>
+      <div class="lesson-item" data-id="4"><div class="dot"></div>Trend Lines & Patterns</div>
+      <div class="lesson-item" data-id="5"><div class="dot"></div>Indicators (RSI, MACD, MA)</div>
+    </div>
+    <div class="module-group">
+      <div class="module-header">🛡️ Module 3 — Risk Management</div>
+      <div class="lesson-item" data-id="6"><div class="dot"></div>Position Sizing</div>
+      <div class="lesson-item" data-id="7"><div class="dot"></div>Stop Loss & Take Profit</div>
+      <div class="lesson-item" data-id="8"><div class="dot"></div>Risk/Reward Ratio</div>
+    </div>
+    <div class="module-group">
+      <div class="module-header">🧠 Module 4 — Psychology & Prop</div>
+      <div class="lesson-item" data-id="9"><div class="dot"></div>Trading Psychology</div>
+      <div class="lesson-item" data-id="10"><div class="dot"></div>Prop Firms Kaise Kaam Karte Hain</div>
+      <div class="lesson-item" data-id="11"><div class="dot"></div>FTMO Challenge Strategy</div>
+    </div>
+  </div>
+
+  <div class="content" id="content-area"></div>
+</div>
+
+<script>
+const lessons = [
+  {
+    id: 0, title: "Trading Kya Hota Hai?", badge: "beginner", badgeText: "Beginner",
+    time: "10 min", module: "Module 1",
+    qqTopics: ["Market kya hoti hai?", "Buyer aur seller ka role?", "Profit kaise hota hai?"],
+    content: `
+      <div class="concept-block">
+        <h3>🎯 Simple Definition</h3>
+        <p>Trading matlab hai — <strong>kisi cheez ko saste mein khareedna aur mahenge mein bechna</strong>, ya mahenge mein bechna pehle aur baad mein saste mein kharidna (short selling).</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card"><h4>📈 Long Trade (Buy)</h4><p>Sochte ho price upar jayegi → Pehle khareedо → Price badhne par becho → Fark = Profit</p></div>
+        <div class="info-card"><h4>📉 Short Trade (Sell)</h4><p>Sochte ho price neeche jayegi → Pehle becho → Price giri to khareedо → Fark = Profit</p></div>
+      </div>
+      <div class="concept-block">
+        <h3>🏦 Market Kaise Kaam Karta Hai?</h3>
+        <ul>
+          <li><strong>Buyers</strong> — jo price badhne ka expect kar rahe hain</li>
+          <li><strong>Sellers</strong> — jo price girne ka expect kar rahe hain</li>
+          <li>Jab buyers > sellers → Price upar jaati hai</li>
+          <li>Jab sellers > buyers → Price neeche girti hai</li>
+        </ul>
+      </div>
+      <div class="highlight"><strong>Real Example:</strong> Agar tumhare paas ek samoose ki dukaan hai — subah ₹10 mein aata kharida, shaam ko ₹12 mein samose bech diya. Profit = ₹2. Trading bhi exactly aisa hai, bas yahan currency, stocks ya gold hote hain! 😄</div>
+      <div class="concept-block">
+        <h3>💰 Trading vs Investing — Fark</h3>
+        <ul>
+          <li><strong>Trading</strong> — Short term, zyada active, technical analysis pe based</li>
+          <li><strong>Investing</strong> — Long term (saal), company fundamentals dekhte hain</li>
+          <li>Prop firms ke liye → <strong>Trading sikhni hai</strong></li>
+        </ul>
+      </div>
+      <div class="warning-box"><strong>⚠️ Yaad rakho:</strong> Trading mein loss bhi hota hai. Professional trader bhi 40-50% trades lose karta hai — lekin jo trade win hoti hai woh itni badi hoti hai ki overall profit hota hai. Yahi skill hai jo sikhni hai.</div>`
+  },
+  {
+    id: 1, title: "Market Types — Kahan Trade Karein?", badge: "beginner", badgeText: "Beginner",
+    time: "12 min", module: "Module 1",
+    qqTopics: ["Forex market kya hai?", "Crypto vs Stocks?", "India mein best market konsa hai?"],
+    content: `
+      <div class="info-grid">
+        <div class="info-card"><h4>💱 Forex Market</h4><p>Currency pairs trade hote hain. EUR/USD, GBP/USD. 24 ghante open. Sabse zyada prop firms yahan hain.</p></div>
+        <div class="info-card"><h4>📈 Stock Market</h4><p>Company ke shares. India mein NSE/BSE. Timing: 9:15am–3:30pm.</p></div>
+        <div class="info-card"><h4>₿ Crypto Market</h4><p>Bitcoin, Ethereum. 24/7 open. Bahut volatile. Beginners ke liye risky.</p></div>
+        <div class="info-card"><h4>🥇 Commodities</h4><p>Gold, Silver, Crude Oil. MCX India mein. Safe haven assets.</p></div>
+      </div>
+      <div class="concept-block">
+        <h3>🎯 Prop Firms ke Liye Best Market</h3>
+        <ul>
+          <li><strong>Forex</strong> — FTMO, The Funded Trader sab mostly Forex chalate hain</li>
+          <li>Popular pairs: EUR/USD, GBP/USD, USD/JPY</li>
+          <li>Indices bhi: US30 (Dow Jones), US100 (NASDAQ), SPX500</li>
+        </ul>
+      </div>
+      <div class="highlight"><strong>Recommendation:</strong> Pehle <strong>EUR/USD</strong> pe practice karo. Sabse liquid pair, spread sabse kam, patterns clear.</div>
+      <div class="concept-block">
+        <h3>⏰ Forex Market Sessions (IST)</h3>
+        <ul>
+          <li><strong>London Session</strong> — 1:30pm–10:30pm ⭐ Best</li>
+          <li><strong>New York Session</strong> — 6:30pm–3:30am ⭐ Best</li>
+          <li><strong>London + NY Overlap</strong> — 6:30pm–10:30pm 🔥 Most volatile</li>
+        </ul>
+      </div>
+      <div class="warning-box"><strong>💡 Strategy:</strong> India mein best time = <strong>Shaam 6:30 baje se raat 10:30 baje</strong> tak. London-NY overlap mein movement sabse zyada hoti hai.</div>`
+  },
+  {
+    id: 2, title: "Candlestick Charts — Market Ki Language", badge: "beginner", badgeText: "Beginner",
+    time: "15 min", module: "Module 1",
+    qqTopics: ["Candle kaise padhein?", "Bullish vs Bearish candle?", "Important patterns kaun se hain?"],
+    content: `
+      <div class="concept-block">
+        <h3>🕯️ Candlestick Kya Hoti Hai?</h3>
+        <p>Har candle 4 cheezein batati hai:</p>
+        <ul>
+          <li><strong>Open</strong> — Starting price</li>
+          <li><strong>Close</strong> — Ending price</li>
+          <li><strong>High</strong> — Sabse upar price</li>
+          <li><strong>Low</strong> — Sabse neeche price</li>
+        </ul>
+      </div>
+      <div class="info-grid">
+        <div class="info-card"><h4>🟢 Bullish (Green) Candle</h4><p>Close > Open. Price upar gayi. Buyers strong the.</p></div>
+        <div class="info-card"><h4>🔴 Bearish (Red) Candle</h4><p>Close &lt; Open. Price neeche aayi. Sellers strong the.</p></div>
+      </div>
+      <div class="concept-block">
+        <h3>📊 Timeframes</h3>
+        <ul>
+          <li><strong>M15</strong> — 15 minute (day trading)</li>
+          <li><strong>H1</strong> — 1 ghanta (swing trading)</li>
+          <li><strong>H4</strong> — 4 ghante ⭐ Best for beginners</li>
+          <li><strong>D1</strong> — 1 din (trend dekhne ke liye) ⭐</li>
+        </ul>
+      </div>
+      <div class="concept-block">
+        <h3>🔑 Important Patterns</h3>
+        <ul>
+          <li><strong>Doji</strong> — Open ≈ Close. Market confused. Reversal signal</li>
+          <li><strong>Hammer</strong> — Long lower wick. Buyers ne price wapas laaya. Bullish</li>
+          <li><strong>Shooting Star</strong> — Long upper wick. Sellers ne rokа. Bearish</li>
+          <li><strong>Engulfing</strong> — Badi candle pichli ko wrap kare. Strong reversal</li>
+        </ul>
+      </div>
+      <div class="highlight"><strong>Pro Tip:</strong> Sirf candles dekh ke trade mat karo. Context mein dekho — kahan support pe hammer aaya? Kahan resistance pe shooting star? Context + pattern = Good setup.</div>
+      <div class="warning-box"><strong>Practice:</strong> TradingView.com pe jaao, EUR/USD kholo, H4 timeframe select karo, aur patterns identify karo.</div>`
+  },
+  {
+    id: 3, title: "Support & Resistance — Price Ki Divaarein", badge: "intermediate", badgeText: "Intermediate",
+    time: "15 min", module: "Module 2",
+    qqTopics: ["Support kaise dhundhein?", "Role reversal kya hota hai?", "Breakout kab hota hai?"],
+    content: `
+      <div class="concept-block">
+        <h3>🔵 Support Kya Hai?</h3>
+        <p>Woh price level jahan price baar baar girti hai lekin <strong>rukk jaati hai aur wapas upar jaati hai</strong>. Jaise zameen.</p>
+      </div>
+      <div class="concept-block">
+        <h3>🔴 Resistance Kya Hai?</h3>
+        <p>Woh price level jahan price baar baar badhti hai lekin <strong>rukk jaati hai aur wapas neeche aati hai</strong>. Jaise chhat.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card"><h4>📌 Support Kaise Dhundhein</h4><p>Chart pe dekho kahan price ne 2–3 baar neeche se bounce kiya ho. Woh horizontal line = Support.</p></div>
+        <div class="info-card"><h4>📌 Resistance Kaise Dhundhein</h4><p>Chart pe dekho kahan price ne 2–3 baar upar se reject kiya ho. Woh horizontal line = Resistance.</p></div>
+      </div>
+      <div class="concept-block">
+        <h3>🔄 Role Reversal</h3>
+        <p>Jab support toot jaata hai → woh resistance ban jaata hai.<br>Jab resistance toot jaata hai → woh support ban jaata hai.</p>
+      </div>
+      <div class="highlight"><strong>Trade Setup Example:</strong><br>1. EUR/USD ka support 1.0800 pe hai<br>2. Price 1.0800 ke paas aayi aur bounce kiya<br>3. Hammer candle bana support pe<br>4. → BUY! SL: 1.0780, Target: 1.0900<br><br><strong>Yahi hai prop firm trading ki base strategy!</strong></div>
+      <div class="warning-box"><strong>⚠️ Fake Breakout:</strong> Price support tod ke neeche jaaye phir wapas aa jaaye = "Fakeout". Isliye candle close ka wait karo confirmation ke liye.</div>`
+  },
+  {
+    id: 4, title: "Trend Lines & Chart Patterns", badge: "intermediate", badgeText: "Intermediate",
+    time: "15 min", module: "Module 2",
+    qqTopics: ["Trend line kaise draw karein?", "Head & Shoulders kya hai?", "Triangle pattern use kaise karein?"],
+    content: `
+      <div class="concept-block">
+        <h3>📈 Trend Kya Hota Hai?</h3>
+        <ul>
+          <li><strong>Uptrend</strong> — Higher Highs + Higher Lows. Price seedhi upar</li>
+          <li><strong>Downtrend</strong> — Lower Highs + Lower Lows. Price seedhi neeche</li>
+          <li><strong>Sideways</strong> — Range bound. Koi clear direction nahi</li>
+        </ul>
+      </div>
+      <div class="highlight"><strong>Golden Rule:</strong> "Trend is your friend." Uptrend mein sirf buy karo, downtrend mein sirf sell karo.</div>
+      <div class="concept-block">
+        <h3>✏️ Trend Line Kaise Draw Karein</h3>
+        <ul>
+          <li><strong>Uptrend Line</strong> — Min 2 Higher Lows connect karo. Support ka kaam karta hai</li>
+          <li><strong>Downtrend Line</strong> — Min 2 Lower Highs connect karo. Resistance ka kaam karta hai</li>
+          <li>Jitne zyada touch, utni strong line</li>
+        </ul>
+      </div>
+      <div class="concept-block">
+        <h3>🔷 Important Chart Patterns</h3>
+        <ul>
+          <li><strong>Head & Shoulders</strong> — Teen peaks, beech wali badi. Bearish reversal</li>
+          <li><strong>Double Top/Bottom</strong> — Price 2 baar same level hit kare. Reversal signal</li>
+          <li><strong>Triangle</strong> — Price compress ho rahi, bada move aane wala</li>
+          <li><strong>Flag & Pennant</strong> — Strong move ke baad short consolidation, phir same direction</li>
+        </ul>
+      </div>
+      <div class="formula">📐 Triangle Target = Flag pole ki height + Breakout point</div>
+      <div class="warning-box"><strong>💡 Beginners:</strong> Sirf <strong>Double Top/Bottom</strong> aur <strong>Support/Resistance bounce</strong> pe focus karo. Ye do patterns kaafi hain!</div>`
+  },
+  {
+    id: 5, title: "Indicators — RSI, MACD, Moving Averages", badge: "intermediate", badgeText: "Intermediate",
+    time: "20 min", module: "Module 2",
+    qqTopics: ["RSI kya batata hai?", "MACD use kaise karein?", "Moving average kya hoti hai?"],
+    content: `
+      <div class="concept-block">
+        <h3>📊 Moving Average (MA)</h3>
+        <ul>
+          <li><strong>SMA 50</strong> — 50 candles ki simple average</li>
+          <li><strong>SMA 200</strong> — Long term trend indicator</li>
+          <li>Price SMA ke upar = Bullish trend</li>
+          <li><strong>Golden Cross</strong> = SMA 50 cross SMA 200 ke upar → Strong buy signal</li>
+        </ul>
+      </div>
+      <div class="concept-block">
+        <h3>⚡ RSI — Relative Strength Index</h3>
+        <ul>
+          <li>0–100 ke beech hota hai</li>
+          <li><strong>70+ = Overbought</strong> (bechne ka soch sakte ho)</li>
+          <li><strong>30- = Oversold</strong> (kharidne ka soch sakte ho)</li>
+          <li><strong>Divergence</strong> — Price naya high banaye lekin RSI na banaye = Weakness signal</li>
+        </ul>
+      </div>
+      <div class="concept-block">
+        <h3>📈 MACD</h3>
+        <ul>
+          <li>MACD line Signal line ke upar cross = Buy signal</li>
+          <li>MACD line Signal line ke neeche cross = Sell signal</li>
+          <li>Histogram positive = Bullish momentum</li>
+        </ul>
+      </div>
+      <div class="highlight"><strong>Pro Combination:</strong><br>1. MA se trend identify karo<br>2. RSI se entry timing lo (oversold mein buy)<br>3. Support/Resistance se confirm karo<br>→ Teen cheezein align = High probability setup</div>
+      <div class="warning-box"><strong>⚠️ Indicator Trap:</strong> Max 2-3 indicators use karo. Indicators lagging hote hain — price action + indicator = best combo.</div>`
+  },
+  {
+    id: 6, title: "Position Sizing — Kitna Paisa Lagaein?", badge: "intermediate", badgeText: "Intermediate",
+    time: "15 min", module: "Module 3",
+    qqTopics: ["Lot size kya hoti hai?", "Leverage kya hai?", "Per trade kitna risk lena chahiye?"],
+    content: `
+      <div class="concept-block">
+        <h3>🎯 Sabse Important Concept</h3>
+        <p>Risk management na aaye to chahe kitna bhi analysis aaye — account blow ho jaayega.</p>
+      </div>
+      <div class="concept-block">
+        <h3>📦 Lot Size (Forex)</h3>
+        <ul>
+          <li><strong>Standard Lot</strong> = 100,000 units</li>
+          <li><strong>Mini Lot</strong> = 10,000 units</li>
+          <li><strong>Micro Lot</strong> = 1,000 units ← Beginners ye use karein</li>
+        </ul>
+      </div>
+      <div class="formula">💡 1 Micro Lot (0.01) = ~$0.10 per pip movement</div>
+      <div class="concept-block">
+        <h3>⚖️ Leverage — Double Edged Sword</h3>
+        <ul>
+          <li>1:100 leverage = ₹1,000 se ₹1,00,000 ka trade</li>
+          <li>Profit bhi 100x, Loss bhi 100x</li>
+          <li>Beginners: <strong>1:10 ya kam</strong> use karo</li>
+        </ul>
+      </div>
+      <div class="formula">🧮 Position Size = (Account % Risk × Balance) ÷ (SL pips × Pip Value)</div>
+      <div class="highlight"><strong>Rule of Thumb:</strong><br>✅ Per trade max <strong>1-2% of account</strong> risk karo<br>✅ $10,000 account → Max $100-200 risk per trade<br>✅ Is rule se 50 consecutive losses bhi account nahi udayenge</div>
+      <div class="warning-box"><strong>FTMO Rule:</strong> Max daily loss 5% aur max overall loss 10%. Isliye 1-2% risk rule aur bhi zaroori hai.</div>`
+  },
+  {
+    id: 7, title: "Stop Loss & Take Profit", badge: "intermediate", badgeText: "Intermediate",
+    time: "12 min", module: "Module 3",
+    qqTopics: ["Stop loss kahan lagaein?", "Take profit kaise decide karein?", "Trailing stop loss kya hota hai?"],
+    content: `
+      <div class="concept-block">
+        <h3>🛑 Stop Loss (SL)</h3>
+        <ul>
+          <li>Buy trade mein → SL hamesha <strong>neeche</strong> lagaao</li>
+          <li>Sell trade mein → SL hamesha <strong>upar</strong> lagaao</li>
+          <li>Support ke <strong>thoda neeche</strong> SL rakho (buffer ke liye)</li>
+        </ul>
+      </div>
+      <div class="concept-block">
+        <h3>🎯 Take Profit (TP)</h3>
+        <ul>
+          <li>Agla resistance level = common TP placement</li>
+          <li>Round numbers pe bhi price react karti hai</li>
+        </ul>
+      </div>
+      <div class="formula">📏 TP distance ≥ 2× SL distance (minimum 1:2 Risk/Reward)</div>
+      <div class="info-grid">
+        <div class="info-card"><h4>✅ Good Setup</h4><p>Entry: 1.0850<br>SL: 1.0820 (30 pips)<br>TP: 1.0910 (60 pips)<br>R:R = 1:2 ✅</p></div>
+        <div class="info-card"><h4>❌ Bad Setup</h4><p>Entry: 1.0850<br>SL: 1.0820 (30 pips)<br>TP: 1.0880 (30 pips)<br>R:R = 1:1 ❌</p></div>
+      </div>
+      <div class="concept-block">
+        <h3>🔄 Trailing Stop Loss</h3>
+        <p>Jab trade profit mein ho to SL ko break-even pe laao. Jaise: 30 pips profit ho jaaye → SL entry point pe laao (risk = zero).</p>
+      </div>
+      <div class="highlight"><strong>Golden Rule:</strong> SL lagane ke baad usse <strong>kabhi neeche mat karo</strong>. SL sirf upar (profit direction mein) move karo. SL hatana = Worst trading habit.</div>`
+  },
+  {
+    id: 8, title: "Risk/Reward Ratio — Game Changer", badge: "intermediate", badgeText: "Intermediate",
+    time: "10 min", module: "Module 3",
+    qqTopics: ["RR ratio calculate kaise karein?", "Win rate kitni chahiye profitable rehne ke liye?", "Realistic monthly return kya hai?"],
+    content: `
+      <div class="concept-block">
+        <h3>🧮 Risk/Reward Ratio</h3>
+        <p>Ek trade mein kitna risk vs kitna reward. Simple calculation.</p>
+      </div>
+      <div class="formula">RR Ratio = Take Profit Distance ÷ Stop Loss Distance</div>
+      <div class="concept-block">
+        <h3>📊 Math Samajho — Eye Opening</h3>
+        <p>Agar RR = 1:2 hai, 10 trades liye:</p>
+        <ul>
+          <li>Sirf <strong>4 jeet</strong> ke bhi: 4 × $200 = $800 profit</li>
+          <li>6 haare: 6 × $100 = $600 loss</li>
+          <li><strong>Net = +$200 PROFIT sirf 40% win rate se!</strong></li>
+        </ul>
+      </div>
+      <div class="info-grid">
+        <div class="info-card"><h4>1:1 RR</h4><p>50%+ win rate chahiye. Hard.</p></div>
+        <div class="info-card"><h4>1:2 RR ✅</h4><p>34%+ win rate kafi. Achievable.</p></div>
+        <div class="info-card"><h4>1:3 RR</h4><p>25%+ win rate kafi. Good target.</p></div>
+        <div class="info-card"><h4>1:5 RR</h4><p>20% win rate. 5 mein se 1 sahi = profitable!</p></div>
+      </div>
+      <div class="highlight"><strong>FTMO ke liye Target:</strong><br>$10,000 account → $1,000 profit banana hai (+10%).<br>1:2 RR + 1% risk per trade + 5-6 trades/week = 6-8 hafton mein possible!</div>`
+  },
+  {
+    id: 9, title: "Trading Psychology — Sabse Mushkil Part", badge: "advanced", badgeText: "Advanced",
+    time: "15 min", module: "Module 4",
+    qqTopics: ["FOMO kya hota hai?", "Revenge trading kaise rokein?", "Discipline kaise maintain karein?"],
+    content: `
+      <div class="concept-block">
+        <h3>🧠 Sach Yeh Hai</h3>
+        <p>90% traders isliye nahi haarte kyunki technical analysis nahi aata — haarte hain kyunki <strong>emotions control nahi hote</strong>.</p>
+      </div>
+      <div class="concept-block">
+        <h3>😱 Common Psychological Traps</h3>
+        <ul>
+          <li><strong>FOMO</strong> — Bina analysis ke trade lo kyunki "sab profit kar rahe hain"</li>
+          <li><strong>Revenge Trading</strong> — Loss ke baad gusse mein aur bada trade lena</li>
+          <li><strong>Overconfidence</strong> — 3-4 trades jeet ke sochna "ab sab samajh aaya"</li>
+          <li><strong>Hope Trading</strong> — SL hit hone wala ho par SL hata dena</li>
+          <li><strong>Greed</strong> — TP ke paas sochna "thoda aur chalo"</li>
+        </ul>
+      </div>
+      <div class="highlight"><strong>Rules jo follow karne hain:</strong><br>✅ Roz max 2-3 trades<br>✅ Loss ke baad us din koi trade nahi<br>✅ Har trade ka journal likhna (entry, exit, reason, feeling)<br>✅ Setup nahi mila to market se bahar rehna = Professional decision</div>
+      <div class="warning-box"><strong>Trading Journal Format:</strong><br>Date | Pair | Entry | SL | TP | Result | Reason | Feeling<br>Month baad padho — kab lose karte ho, kab win, patterns dikhai denge.</div>
+      <div class="concept-block">
+        <h3>🧘 Mental Reset</h3>
+        <ul>
+          <li>Bad trade ke baad — Screen band karo, 30 min walk karo</li>
+          <li>Sirf "A+ setups" trade karo — borderline skip karo</li>
+          <li>Trading rules ek paper pe likho aur daily padho</li>
+        </ul>
+      </div>`
+  },
+  {
+    id: 10, title: "Prop Firms Kaise Kaam Karte Hain?", badge: "advanced", badgeText: "Advanced",
+    time: "12 min", module: "Module 4",
+    qqTopics: ["FTMO challenge ke rules kya hain?", "Profit split kitni hoti hai?", "Challenge fail ho jaaye to kya?"],
+    content: `
+      <div class="concept-block">
+        <h3>🏦 Prop Firm Model</h3>
+        <ul>
+          <li>Pehle <strong>Challenge</strong> pass karni hoti hai</li>
+          <li>Pass = <strong>Funded Account</strong> milta hai</li>
+          <li>Profit ka <strong>70–90%</strong> trader ka hota hai</li>
+        </ul>
+      </div>
+      <div class="info-grid">
+        <div class="info-card"><h4>📋 FTMO Challenge</h4><p>Profit Target: +10%<br>Max Daily Loss: 5%<br>Max Total Loss: 10%<br>Min Trading Days: 4<br>Time Limit: 30 days</p></div>
+        <div class="info-card"><h4>✅ Verification Phase</h4><p>Profit Target: +5%<br>Same loss limits<br>60 days time<br>Pass karo → Funded!</p></div>
+        <div class="info-card"><h4>💰 Funded Account</h4><p>$10k: Fee ~$155<br>$25k: Fee ~$250<br>Profit split: 80/20<br>Monthly withdrawal</p></div>
+        <div class="info-card"><h4>⚠️ Breach</h4><p>Daily loss 5% exceed = Fail. Total 10% loss = Fail. Fee deke retry.</p></div>
+      </div>
+      <div class="highlight"><strong>India se Apply Ho Sakta Hai?</strong><br>Haan! FTMO, The Funded Trader, MyFundedFX — sab India se accessible.<br>Payment: Credit card, crypto, wire transfer.<br>Income: Paypal ya wire transfer se India aata hai.</div>
+      <div class="warning-box"><strong>Realistic Timeline:</strong><br>Month 1–3: Basics + Demo practice<br>Month 4–6: Consistent profitable demo<br>Month 6–8: First challenge attempt<br>Month 8–12: Funded account possible<br><br>Rush mat karo — demo mein consistent results ke baad hi real challenge lo.</div>`
+  },
+  {
+    id: 11, title: "FTMO Challenge Strategy — Final Game Plan", badge: "advanced", badgeText: "Advanced",
+    time: "20 min", module: "Module 4",
+    qqTopics: ["Best strategy for FTMO challenge?", "Scalping vs Swing for prop firms?", "Weekly trading plan kaise banayein?"],
+    content: `
+      <div class="concept-block">
+        <h3>📊 Strategy: London Session Breakout</h3>
+        <ul>
+          <li><strong>Market:</strong> EUR/USD, GBP/USD</li>
+          <li><strong>Timeframe:</strong> H4 (trend), H1 (entry)</li>
+          <li><strong>Session:</strong> London open (1:30pm IST) ya NY open (6:30pm IST)</li>
+          <li><strong>RR:</strong> Minimum 1:2</li>
+          <li><strong>Risk per trade:</strong> 1%</li>
+          <li><strong>Max trades per day:</strong> 2</li>
+        </ul>
+      </div>
+      <div class="concept-block">
+        <h3>✅ Entry Checklist</h3>
+        <ul>
+          <li>☐ H4 pe trend clear hai</li>
+          <li>☐ Key Support/Resistance ke paas price hai</li>
+          <li>☐ RSI 30 (buy) ya 70 (sell) ke paas</li>
+          <li>☐ Confirmation candle ban gayi</li>
+          <li>☐ SL valid level ke peeche hai</li>
+          <li>☐ RR minimum 1:2 possible hai</li>
+          <li>☐ No major news in next 2 hours</li>
+        </ul>
+      </div>
+      <div class="formula">📅 Weekly Target: +2% | Max Weekly Loss: -3% | Trades: 5–8</div>
+      <div class="highlight"><strong>Month-wise Practice Plan:</strong><br><strong>Month 1:</strong> TradingView pe roz 1 ghanta chart study<br><strong>Month 2:</strong> Demo pe strategy follow karo, journal likhо<br><strong>Month 3:</strong> Results analyze karo (win rate, RR, drawdown)<br><strong>Month 4–5:</strong> Consistent green weeks → FTMO free demo lo<br><strong>Month 6:</strong> Demo pass → Real challenge attempt karo</div>
+      <div class="concept-block">
+        <h3>🔗 Free Resources</h3>
+        <ul>
+          <li><strong>TradingView.com</strong> — Charts + indicators (free plan kafi)</li>
+          <li><strong>MetaTrader 4/5</strong> — Demo account (broker se free)</li>
+          <li><strong>Zerodha Varsity</strong> — Technical analysis in Hindi</li>
+          <li><strong>Babypips.com</strong> — Forex basics free course</li>
+          <li><strong>ForexFactory.com</strong> — Economic calendar (news events)</li>
+        </ul>
+      </div>
+      <div class="warning-box"><strong>🎉 Course Complete!</strong> Ab practice shuru karo. TradingView pe jaao, EUR/USD chart kholo, aur jo seekha hai woh identify karo. Theory se practice mein aao — wahi real learning hai! 🚀</div>`
+  }
+];
+
+let currentLesson = 0;
+const completedLessons = new Set();
+
+function renderLesson(id) {
+  const lesson = lessons[id];
+  const badge = lesson.badge === 'beginner' ? 'badge-beginner' :
+                lesson.badge === 'intermediate' ? 'badge-intermediate' : 'badge-advanced';
+  const qqBtns = lesson.qqTopics.map(q =>
+    `<button class="qq-btn" onclick="sendQuickQ('${q.replace(/'/g,"\\'")}'">${q}</button>`
+  ).join('');
+
+  document.getElementById('content-area').innerHTML = `
+    <div>
+      <div class="lesson-meta">
+        <span>${lesson.module}</span>
+        <span>⏱ ${lesson.time}</span>
+        <span class="badge ${badge}">${lesson.badgeText}</span>
+      </div>
+      <div class="lesson-title">${lesson.title}</div>
+      ${lesson.content}
+      <div class="ai-section">
+        <div class="ai-section-header">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <h3>AI Trading Tutor</h3>
+            <p>Is lesson ke baare mein kuch bhi pucho — Hindi ya English mein</p>
+          </div>
+        </div>
+        <div class="quick-questions">${qqBtns}</div>
+        <div class="chat-area" id="chat-area">
+          <div class="placeholder-msg">Koi bhi sawaal pucho is lesson ke baare mein 👆<br>Ya upar ke <span>quick questions</span> click karo</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Apna sawaal yahan likho..." onkeydown="handleKey(event)">
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">Send ▶</button>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="nav-btn nav-btn-prev" onclick="prevLesson()" ${id === 0 ? 'disabled style="opacity:0.3"' : ''}>← Pichla</button>
+        <button class="nav-btn done-btn" onclick="markDone(${id})">✓ Done</button>
+        <button class="nav-btn nav-btn-next" onclick="nextLesson()" ${id === lessons.length - 1 ? 'disabled style="opacity:0.3"' : ''}>Agla →</button>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.lesson-item').forEach(item => {
+    const itemId = parseInt(item.dataset.id);
+    item.classList.remove('active');
+    if (itemId === id) item.classList.add('active');
+    if (completedLessons.has(itemId)) item.classList.add('done');
+    else item.classList.remove('done');
+  });
+  updateProgress();
+  document.getElementById('content-area').scrollTop = 0;
+}
+
+function nextLesson() { if (currentLesson < lessons.length - 1) { currentLesson++; renderLesson(currentLesson); } }
+function prevLesson() { if (currentLesson > 0) { currentLesson--; renderLesson(currentLesson); } }
+function markDone(id) {
+  completedLessons.add(id);
+  updateProgress();
+  document.querySelectorAll('.lesson-item').forEach(item => {
+    if (parseInt(item.dataset.id) === id) item.classList.add('done');
+  });
+}
+function updateProgress() {
+  const done = completedLessons.size;
+  const pct = Math.round((done / lessons.length) * 100);
+  document.getElementById('progress-text').textContent = `${done} / ${lessons.length} Lessons Complete`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+}
+function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+function sendQuickQ(question) {
+  document.getElementById('chat-input').value = question;
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const chatArea = document.getElementById('chat-area');
+  const sendBtn = document.getElementById('send-btn');
+  const question = input.value.trim();
+  if (!question) return;
+
+  if (chatArea.querySelector('.placeholder-msg')) chatArea.innerHTML = '';
+
+  chatArea.innerHTML += `
+    <div class="chat-msg user">
+      <div class="chat-name">Tum</div>
+      <div class="chat-bubble">${question}</div>
+    </div><div class="chat-clear"></div>`;
+
+  const typingId = 'typing-' + Date.now();
+  chatArea.innerHTML += `
+    <div class="chat-msg ai" id="${typingId}">
+      <div class="chat-name">AI Tutor</div>
+      <div class="chat-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+    </div><div class="chat-clear"></div>`;
+
+  chatArea.scrollTop = chatArea.scrollHeight;
+  input.value = '';
+  sendBtn.disabled = true;
+
+  try {
+    // ✅ Calls Netlify Function — API key stays on server
+    const response = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, lessonTitle: lessons[currentLesson].title })
+    });
+
+    const data = await response.json();
+    const answer = data.answer || data.error || 'Jawab nahi mila, dobara try karo.';
+
+    document.getElementById(typingId).outerHTML = `
+      <div class="chat-msg ai">
+        <div class="chat-name">AI Tutor 🤖</div>
+        <div class="chat-bubble">${answer.replace(/\n/g, '<br>')}</div>
+      </div><div class="chat-clear"></div>`;
+  } catch (err) {
+    document.getElementById(typingId).outerHTML = `
+      <div class="chat-msg ai">
+        <div class="chat-name">AI Tutor</div>
+        <div class="chat-bubble" style="color:var(--red)">Error: ${err.message}</div>
+      </div><div class="chat-clear"></div>`;
+  }
+
+  chatArea.scrollTop = chatArea.scrollHeight;
+  sendBtn.disabled = false;
+}
+
+document.querySelectorAll('.lesson-item').forEach(item => {
+  item.addEventListener('click', () => {
+    currentLesson = parseInt(item.dataset.id);
+    renderLesson(currentLesson);
+  });
+});
+
+renderLesson(0);
+</script>
+</body>
+</html>
