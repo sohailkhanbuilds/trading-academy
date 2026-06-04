@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Trading — EUR/USD Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --card: #1a1a26; --border: #2a2a3a;
+    --accent: #00e5ff; --accent2: #7c3aed; --green: #00ff88; --red: #ff4466;
+    --yellow: #ffd60a; --text: #e8e8f0; --muted: #6b6b8a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Space Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-box {
+    width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #000; font-family: 'Syne', sans-serif;
+  }
+  .logo h1 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; }
+  .logo h1 span { color: var(--accent); }
+  .back-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--muted);
+    padding: 6px 14px; border-radius: 6px; font-family: 'Space Mono', monospace;
+    font-size: 11px; cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    background: var(--surface); flex-wrap: wrap;
+  }
+  .stat {
+    padding: 12px 20px; border-right: 1px solid var(--border); min-width: 120px;
+  }
+  .stat-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-val { font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.red { color: var(--red); }
+  .stat-val.accent { color: var(--accent); }
+
+  /* SPEED CONTROL */
+  .speed-bar {
+    padding: 8px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--muted);
+  }
+  .speed-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 4px 10px; border-radius: 4px; font-size: 10px; cursor: pointer;
+    font-family: 'Space Mono', monospace; transition: all 0.15s;
+  }
+  .speed-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .live-dot {
+    width: 8px; height: 8px; background: var(--green); border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* MAIN LAYOUT */
+  .main { display: grid; grid-template-columns: 1fr 320px; height: calc(100vh - 130px); }
+
+  /* CHART AREA */
+  .chart-area { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+  .chart-header {
+    padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; gap: 16px; font-size: 11px;
+  }
+  .pair-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; }
+  .price-display { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .price-change { font-size: 11px; }
+  .tf-btns { display: flex; gap: 4px; margin-left: auto; }
+  .tf-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--muted);
+    padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;
+    font-family: 'Space Mono', monospace;
+  }
+  .tf-btn.active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+
+  canvas#chart { flex: 1; display: block; cursor: crosshair; }
+
+  /* TRADE PANEL */
+  .trade-panel { display: flex; flex-direction: column; overflow-y: auto; }
+  .trade-panel::-webkit-scrollbar { width: 4px; }
+  .trade-panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .panel-section { border-bottom: 1px solid var(--border); }
+  .panel-title {
+    padding: 10px 14px; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); background: var(--surface);
+  }
+  .panel-body { padding: 12px 14px; }
+
+  .input-group { margin-bottom: 10px; }
+  .input-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; display: block; }
+  .trade-input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 10px; border-radius: 6px; font-family: 'Space Mono', monospace; font-size: 12px; outline: none;
+  }
+  .trade-input:focus { border-color: var(--accent); }
+
+  .buy-sell-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .buy-btn {
+    background: rgba(0,255,136,0.1); border: 1px solid var(--green); color: var(--green);
+    padding: 12px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 14px;
+    font-weight: 800; cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .buy-btn:hover { background: rgba(0,255,136,0.2); }
+  .sell-btn {
+    background: rgba(255,68,102,0.1); border: 1px solid var(--red); color: var(--red);
+    padding: 12px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 14px;
+    font-weight: 800; cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .sell-btn:hover { background: rgba(255,68,102,0.2); }
+
+  /* OPEN TRADES */
+  .trade-item {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 8px; font-size: 11px;
+  }
+  .trade-item-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .trade-type-badge {
+    padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700;
+  }
+  .trade-type-badge.buy { background: rgba(0,255,136,0.15); color: var(--green); }
+  .trade-type-badge.sell { background: rgba(255,68,102,0.15); color: var(--red); }
+  .trade-pnl { font-weight: 700; }
+  .trade-details { color: var(--muted); font-size: 10px; line-height: 1.8; }
+  .close-trade-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    padding: 3px 8px; border-radius: 4px; font-size: 9px; cursor: pointer;
+    font-family: 'Space Mono', monospace; margin-top: 6px;
+  }
+  .close-trade-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .empty-msg { font-size: 11px; color: var(--muted); text-align: center; padding: 16px; line-height: 1.8; }
+
+  /* HISTORY */
+  .history-item {
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 11px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .history-item:last-child { border-bottom: none; }
+
+  /* CROSSHAIR INFO */
+  .crosshair-info {
+    position: absolute; background: var(--card); border: 1px solid var(--border);
+    padding: 6px 10px; border-radius: 6px; font-size: 10px; pointer-events: none;
+    display: none; z-index: 10;
+  }
+
+  .chart-wrap { position: relative; flex: 1; display: flex; flex-direction: column; }
+
+  /* RESET BTN */
+  .reset-btn {
+    background: rgba(255,68,102,0.1); border: 1px solid var(--red); color: var(--red);
+    padding: 6px 12px; border-radius: 6px; font-size: 10px; cursor: pointer;
+    font-family: 'Space Mono', monospace; width: 100%; margin-top: 8px;
+  }
+  .reset-btn:hover { background: rgba(255,68,102,0.2); }
+
+  /* TOOLTIP */
+  .tooltip {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 12px; font-size: 10px; color: var(--muted); line-height: 1.8; margin-top: 8px;
+  }
+  .tooltip strong { color: var(--accent); }
+
+  @media(max-width: 768px) {
+    .main { grid-template-columns: 1fr; grid-template-rows: 50vh auto; }
+    .chart-area { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">DT</div>
+    <h1>Demo <span>Trader</span></h1>
+  </div>
+  <a class="back-btn" href="index.html">← Course pe Wapas Jao</a>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-label">Balance</div>
+    <div class="stat-val accent" id="stat-balance">$10,000.00</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Open P&L</div>
+    <div class="stat-val" id="stat-open-pnl">$0.00</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Total P&L</div>
+    <div class="stat-val" id="stat-total-pnl">$0.00</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Trades</div>
+    <div class="stat-val" id="stat-trades">0</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Win Rate</div>
+    <div class="stat-val" id="stat-winrate">—</div>
+  </div>
+</div>
+
+<div class="speed-bar">
+  <div class="live-dot"></div>
+  <span>Speed:</span>
+  <button class="speed-btn" onclick="setSpeed(3000)">Slow</button>
+  <button class="speed-btn active" onclick="setSpeed(1500)">Normal</button>
+  <button class="speed-btn" onclick="setSpeed(500)">Fast</button>
+  <button class="speed-btn" onclick="setSpeed(100)">Ultra</button>
+  <span style="margin-left:auto;font-size:10px;" id="candle-count">0 candles</span>
+</div>
+
+<div class="main">
+
+  <!-- CHART -->
+  <div class="chart-area">
+    <div class="chart-header">
+      <div>
+        <div class="pair-name">EUR/USD</div>
+      </div>
+      <div class="price-display" id="current-price">1.0850</div>
+      <div class="price-change" id="price-change"></div>
+      <div class="tf-btns">
+        <div class="tf-btn active">M1</div>
+        <div class="tf-btn" style="opacity:0.4">M5</div>
+        <div class="tf-btn" style="opacity:0.4">H1</div>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- TRADE PANEL -->
+  <div class="trade-panel">
+
+    <!-- ORDER ENTRY -->
+    <div class="panel-section">
+      <div class="panel-title">📊 Order Dalo</div>
+      <div class="panel-body">
+        <div class="input-group">
+          <label class="input-label">Lot Size (0.01 = 1 Micro Lot)</label>
+          <select class="trade-input" id="lot-size">
+            <option value="0.01">0.01 — Micro Lot ($0.10/pip)</option>
+            <option value="0.05">0.05 — ($0.50/pip)</option>
+            <option value="0.10">0.10 — Mini Lot ($1.00/pip)</option>
+            <option value="0.25">0.25 — ($2.50/pip)</option>
+            <option value="0.50">0.50 — ($5.00/pip)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Stop Loss — kitne PIPS neeche/upar (default: 30)</label>
+          <input class="trade-input" type="number" id="sl-pips" value="30" min="5" max="200">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Take Profit — kitne PIPS (default: 60 = 1:2 RR)</label>
+          <input class="trade-input" type="number" id="tp-pips" value="60" min="5" max="500">
+        </div>
+        <div class="tooltip">
+          <strong>RR Ratio:</strong> <span id="rr-display">1 : 2.0</span><br>
+          <strong>Max Loss:</strong> <span id="max-loss-display">$3.00</span> &nbsp;|&nbsp;
+          <strong>Max Profit:</strong> <span id="max-profit-display">$6.00</span>
+        </div>
+        <div class="buy-sell-row">
+          <button class="buy-btn" onclick="placeTrade('BUY')">
+            📈 BUY<br>
+            <span id="ask-price" style="font-size:11px;font-weight:400">1.0852</span>
+          </button>
+          <button class="sell-btn" onclick="placeTrade('SELL')">
+            📉 SELL<br>
+            <span id="bid-price" style="font-size:11px;font-weight:400">1.0848</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPEN TRADES -->
+    <div class="panel-section">
+      <div class="panel-title">📂 Open Trades</div>
+      <div class="panel-body" id="open-trades-panel">
+        <div class="empty-msg">Abhi koi open trade nahi hai.<br>Upar BUY ya SELL karo!</div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="panel-section">
+      <div class="panel-title">📋 Trade History</div>
+      <div class="panel-body" id="history-panel">
+        <div class="empty-msg">Closed trades yahan dikhenge.</div>
+      </div>
+      <div class="panel-body" style="padding-top:0">
+        <button class="reset-btn" onclick="resetAccount()">🔄 Account Reset Karo ($10,000)</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+const INITIAL_BALANCE = 10000;
+const SPREAD = 0.0002; // 2 pips spread
+let state = loadState();
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('demoTrader');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return {
+    balance: INITIAL_BALANCE,
+    totalPnl: 0,
+    openTrades: [],
+    closedTrades: [],
+    candles: [],
+    currentPrice: 1.0850
+  };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('demoTrader', JSON.stringify({
+      ...state,
+      candles: state.candles.slice(-100) // only last 100 candles
+    }));
+  } catch(e) {}
+}
+
+// ===== PRICE GENERATION =====
+let speedMs = 1500;
+let priceTimer = null;
+let currentCandle = null;
+let candleTimer = null;
+const CANDLE_TICKS = 10; // ticks per candle
+let tickCount = 0;
+
+function setSpeed(ms) {
+  speedMs = ms;
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  restartTimers();
+}
+
+function generatePrice(prev) {
+  const change = (Math.random() - 0.49) * 0.0008;
+  // Slight mean reversion
+  const meanRevert = (1.0850 - prev) * 0.02;
+  return Math.round((prev + change + meanRevert) * 100000) / 100000;
+}
+
+function startNewCandle(open) {
+  currentCandle = { open, high: open, low: open, close: open, ticks: [] };
+  tickCount = 0;
+}
+
+function tick() {
+  const prev = state.currentPrice;
+  const newPrice = generatePrice(prev);
+  state.currentPrice = newPrice;
+
+  if (!currentCandle) startNewCandle(newPrice);
+
+  currentCandle.close = newPrice;
+  if (newPrice > currentCandle.high) currentCandle.high = newPrice;
+  if (newPrice < currentCandle.low) currentCandle.low = newPrice;
+  currentCandle.ticks.push(newPrice);
+  tickCount++;
+
+  if (tickCount >= CANDLE_TICKS) {
+    state.candles.push({ ...currentCandle });
+    if (state.candles.length > 150) state.candles.shift();
+    startNewCandle(newPrice);
+  }
+
+  checkSLTP(newPrice);
+  updatePriceDisplay(newPrice, prev);
+  updateOpenPnl(newPrice);
+  drawChart();
+  saveState();
+}
+
+function restartTimers() {
+  clearInterval(priceTimer);
+  priceTimer = setInterval(tick, speedMs / CANDLE_TICKS);
+}
+
+// ===== DISPLAY =====
+function updatePriceDisplay(price, prev) {
+  const priceEl = document.getElementById('current-price');
+  priceEl.textContent = price.toFixed(5);
+  priceEl.style.color = price >= prev ? 'var(--green)' : 'var(--red)';
+
+  const change = ((price - 1.0850) * 10000).toFixed(1);
+  const el = document.getElementById('price-change');
+  el.textContent = (change >= 0 ? '+' : '') + change + ' pips';
+  el.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('ask-price').textContent = (price + SPREAD / 2).toFixed(5);
+  document.getElementById('bid-price').textContent = (price - SPREAD / 2).toFixed(5);
+
+  document.getElementById('candle-count').textContent = state.candles.length + ' candles';
+  updateRRDisplay();
+}
+
+function updateRRDisplay() {
+  const sl = parseFloat(document.getElementById('sl-pips').value) || 30;
+  const tp = parseFloat(document.getElementById('tp-pips').value) || 60;
+  const lot = parseFloat(document.getElementById('lot-size').value) || 0.01;
+  const pipVal = lot * 10;
+  const rr = (tp / sl).toFixed(1);
+  document.getElementById('rr-display').textContent = '1 : ' + rr;
+  document.getElementById('max-loss-display').textContent = '$' + (sl * pipVal).toFixed(2);
+  document.getElementById('max-profit-display').textContent = '$' + (tp * pipVal).toFixed(2);
+}
+
+document.getElementById('sl-pips').addEventListener('input', updateRRDisplay);
+document.getElementById('tp-pips').addEventListener('input', updateRRDisplay);
+document.getElementById('lot-size').addEventListener('change', updateRRDisplay);
+
+// ===== TRADING =====
+function placeTrade(type) {
+  const lot = parseFloat(document.getElementById('lot-size').value);
+  const slPips = parseFloat(document.getElementById('sl-pips').value);
+  const tpPips = parseFloat(document.getElementById('tp-pips').value);
+  const price = state.currentPrice;
+  const pipVal = lot * 10;
+
+  const entry = type === 'BUY' ? price + SPREAD / 2 : price - SPREAD / 2;
+  const sl = type === 'BUY' ? entry - slPips * 0.0001 : entry + slPips * 0.0001;
+  const tp = type === 'BUY' ? entry + tpPips * 0.0001 : entry - tpPips * 0.0001;
+
+  const trade = {
+    id: Date.now(),
+    type, lot, entry: Math.round(entry * 100000) / 100000,
+    sl: Math.round(sl * 100000) / 100000,
+    tp: Math.round(tp * 100000) / 100000,
+    pipVal, slPips, tpPips,
+    time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  state.openTrades.push(trade);
+  renderTrades();
+  saveState();
+}
+
+function checkSLTP(price) {
+  const toClose = [];
+  state.openTrades.forEach(trade => {
+    let hit = null;
+    if (trade.type === 'BUY') {
+      if (price <= trade.sl) hit = 'SL';
+      else if (price >= trade.tp) hit = 'TP';
+    } else {
+      if (price >= trade.sl) hit = 'SL';
+      else if (price <= trade.tp) hit = 'TP';
+    }
+    if (hit) toClose.push({ trade, hit, price });
+  });
+
+  toClose.forEach(({ trade, hit, price }) => {
+    closeTrade(trade.id, hit, price);
+  });
+}
+
+function closeTrade(id, reason = 'Manual', closePrice = null) {
+  const idx = state.openTrades.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  const trade = state.openTrades[idx];
+  const exitPrice = closePrice || state.currentPrice;
+
+  const pips = trade.type === 'BUY'
+    ? Math.round((exitPrice - trade.entry) * 10000 * 10) / 10
+    : Math.round((trade.entry - exitPrice) * 10000 * 10) / 10;
+  const pnl = Math.round(pips * trade.pipVal * 10) / 10;
+
+  state.balance += pnl;
+  state.totalPnl += pnl;
+  state.openTrades.splice(idx, 1);
+  state.closedTrades.unshift({
+    ...trade, exitPrice, pnl, pips, reason,
+    exitTime: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  });
+  if (state.closedTrades.length > 50) state.closedTrades.pop();
+
+  renderTrades();
+  updateStats();
+  saveState();
+}
+
+function updateOpenPnl(price) {
+  let openPnl = 0;
+  state.openTrades.forEach(trade => {
+    const pips = trade.type === 'BUY'
+      ? (price - trade.entry) * 10000
+      : (trade.entry - price) * 10000;
+    openPnl += pips * trade.pipVal;
+  });
+  openPnl = Math.round(openPnl * 100) / 100;
+
+  const el = document.getElementById('stat-open-pnl');
+  el.textContent = (openPnl >= 0 ? '+' : '') + '$' + openPnl.toFixed(2);
+  el.className = 'stat-val ' + (openPnl >= 0 ? 'green' : 'red');
+
+  // Update each trade's pnl display
+  state.openTrades.forEach(trade => {
+    const pips = trade.type === 'BUY'
+      ? (price - trade.entry) * 10000
+      : (trade.entry - price) * 10000;
+    const pnl = Math.round(pips * trade.pipVal * 100) / 100;
+    const el = document.getElementById('pnl-' + trade.id);
+    if (el) {
+      el.textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);
+      el.className = 'trade-pnl ' + (pnl >= 0 ? 'green' : 'red');
+      el.style.color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+  });
+}
+
+function updateStats() {
+  document.getElementById('stat-balance').textContent = '$' + state.balance.toFixed(2);
+  const totalPnl = Math.round(state.totalPnl * 100) / 100;
+  const tpEl = document.getElementById('stat-total-pnl');
+  tpEl.textContent = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(2);
+  tpEl.className = 'stat-val ' + (totalPnl >= 0 ? 'green' : 'red');
+  document.getElementById('stat-trades').textContent = state.closedTrades.length;
+
+  const wins = state.closedTrades.filter(t => t.pnl > 0).length;
+  const total = state.closedTrades.length;
+  document.getElementById('stat-winrate').textContent = total > 0
+    ? Math.round(wins / total * 100) + '%' : '—';
+  const wrEl = document.getElementById('stat-winrate');
+  if (total > 0) wrEl.className = 'stat-val ' + (wins / total >= 0.5 ? 'green' : 'red');
+}
+
+function renderTrades() {
+  // Open trades
+  const openPanel = document.getElementById('open-trades-panel');
+  if (state.openTrades.length === 0) {
+    openPanel.innerHTML = '<div class="empty-msg">Abhi koi open trade nahi.<br>BUY ya SELL button dabao!</div>';
+  } else {
+    openPanel.innerHTML = state.openTrades.map(trade => `
+      <div class="trade-item">
+        <div class="trade-item-header">
+          <span>
+            <span class="trade-type-badge ${trade.type.toLowerCase()}">${trade.type}</span>
+            &nbsp;${trade.lot} Lot
+          </span>
+          <span class="trade-pnl" id="pnl-${trade.id}">$0.00</span>
+        </div>
+        <div class="trade-details">
+          Entry: ${trade.entry.toFixed(5)}<br>
+          SL: <span style="color:var(--red)">${trade.sl.toFixed(5)}</span> (${trade.slPips} pips)<br>
+          TP: <span style="color:var(--green)">${trade.tp.toFixed(5)}</span> (${trade.tpPips} pips)<br>
+          Time: ${trade.time}
+        </div>
+        <button class="close-trade-btn" onclick="closeTrade(${trade.id})">✕ Close Trade</button>
+      </div>
+    `).join('');
+  }
+
+  // History
+  const histPanel = document.getElementById('history-panel');
+  if (state.closedTrades.length === 0) {
+    histPanel.innerHTML = '<div class="empty-msg">Closed trades yahan dikhenge.</div>';
+  } else {
+    histPanel.innerHTML = state.closedTrades.slice(0, 20).map(trade => {
+      const isWin = trade.pnl > 0;
+      return `
+        <div class="history-item">
+          <div>
+            <span class="trade-type-badge ${trade.type.toLowerCase()}" style="font-size:9px">${trade.type}</span>
+            &nbsp;<span style="color:var(--muted);font-size:10px">${trade.reason} @ ${trade.exitTime}</span>
+          </div>
+          <div style="color:${isWin ? 'var(--green)' : 'var(--red)'}; font-weight:700">
+            ${isWin ? '+' : ''}$${trade.pnl.toFixed(2)}
+            <span style="font-size:9px;color:var(--muted)">(${trade.pips.toFixed(1)}p)</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  updateStats();
+}
+
+function resetAccount() {
+  if (!confirm('Account reset karna chahte ho? Sab trades aur history delete ho jaayegi.')) return;
+  state = { balance: INITIAL_BALANCE, totalPnl: 0, openTrades: [], closedTrades: [], candles: [], currentPrice: 1.0850 };
+  saveState();
+  renderTrades();
+  updateStats();
+}
+
+// ===== CHART DRAWING =====
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const wrapper = canvas.parentElement;
+  canvas.width = wrapper.clientWidth;
+  canvas.height = wrapper.clientHeight;
+}
+
+function drawChart() {
+  const W = canvas.width, H = canvas.height;
+  if (!W || !H) return;
+
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#1a1a26';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    const y = (H / 8) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  for (let i = 1; i < 10; i++) {
+    const x = (W / 10) * i;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+
+  const allCandles = [...state.candles];
+  if (currentCandle) allCandles.push(currentCandle);
+  if (allCandles.length < 2) return;
+
+  const visible = allCandles.slice(-80);
+  const prices = visible.flatMap(c => [c.high, c.low]);
+  let maxP = Math.max(...prices), minP = Math.min(...prices);
+  const margin = (maxP - minP) * 0.15;
+  maxP += margin; minP -= margin;
+  const range = maxP - minP || 0.01;
+
+  const padL = 10, padR = 60, padT = 20, padB = 30;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  const toY = p => padT + (1 - (p - minP) / range) * chartH;
+  const candleW = Math.max(2, (chartW / visible.length) * 0.6);
+  const gap = chartW / visible.length;
+
+  // Price labels on right
+  ctx.fillStyle = '#6b6b8a';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  const steps = 6;
+  for (let i = 0; i <= steps; i++) {
+    const p = minP + (range * i / steps);
+    const y = toY(p);
+    ctx.fillText(p.toFixed(4), W - padR + 4, y + 3);
+    ctx.strokeStyle = '#1e1e2e';
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  }
+
+  // Draw candles
+  visible.forEach((c, i) => {
+    const x = padL + i * gap + gap / 2;
+    const isGreen = c.close >= c.open;
+    const col = isGreen ? '#00ff88' : '#ff4466';
+
+    ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, toY(c.high));
+    ctx.lineTo(x, toY(c.low));
+    ctx.stroke();
+
+    const bodyTop = toY(Math.max(c.open, c.close));
+    const bodyBot = toY(Math.min(c.open, c.close));
+    const bH = Math.max(1, bodyBot - bodyTop);
+    ctx.fillStyle = i === visible.length - 1 ? col : (isGreen ? '#00ff8860' : '#ff446660');
+    ctx.fillRect(x - candleW / 2, bodyTop, candleW, bH);
+    ctx.strokeStyle = col; ctx.lineWidth = 0.5;
+    ctx.strokeRect(x - candleW / 2, bodyTop, candleW, bH);
+  });
+
+  // Draw open trade lines
+  state.openTrades.forEach(trade => {
+    // Entry line
+    drawPriceLine(toY(trade.entry), '#00e5ff', 'Entry ' + trade.entry.toFixed(5), padL, W - padR);
+    // SL
+    drawPriceLine(toY(trade.sl), '#ff4466', 'SL ' + trade.sl.toFixed(5), padL, W - padR);
+    // TP
+    drawPriceLine(toY(trade.tp), '#00ff88', 'TP ' + trade.tp.toFixed(5), padL, W - padR);
+  });
+
+  // Current price line
+  const curY = toY(state.currentPrice);
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(padL, curY); ctx.lineTo(W - padR, curY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(state.currentPrice.toFixed(5), W - padR + 4, curY + 3);
+
+  // Volume bars at bottom
+  const maxVol = visible.length;
+  visible.forEach((c, i) => {
+    const x = padL + i * gap + gap / 2;
+    const isGreen = c.close >= c.open;
+    ctx.fillStyle = isGreen ? 'rgba(0,255,136,0.15)' : 'rgba(255,68,102,0.15)';
+    ctx.fillRect(x - candleW / 2, H - padB, candleW, padB - 4);
+  });
+}
+
+function drawPriceLine(y, color, label, x1, x2) {
+  ctx.strokeStyle = color; ctx.lineWidth = 1;
+  ctx.setLineDash([6, 3]);
+  ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = color; ctx.font = '9px monospace'; ctx.textAlign = 'left';
+  ctx.fillText(label, x2 + 4, y + 3);
+}
+
+// ===== INIT =====
+window.addEventListener('resize', () => { resizeCanvas(); drawChart(); });
+resizeCanvas();
+
+// Generate initial candles if none
+if (state.candles.length === 0) {
+  let p = state.currentPrice;
+  for (let i = 0; i < 60; i++) {
+    const open = p;
+    const high = open + Math.random() * 0.0015;
+    const low = open - Math.random() * 0.0015;
+    const close = low + Math.random() * (high - low);
+    p = close;
+    state.candles.push({ open, high, low, close });
+  }
+  state.currentPrice = p;
+}
+
+startNewCandle(state.currentPrice);
+restartTimers();
+renderTrades();
+updateStats();
+updateRRDisplay();
+drawChart();
+</script>
+</body>
+</html>

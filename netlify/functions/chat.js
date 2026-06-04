@@ -1,57 +1,47 @@
 exports.handler = async (event) => {
-  // Only POST allowed
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+  if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
 
   try {
     const { question, lessonTitle } = JSON.parse(event.body);
+    if (!question) return { statusCode: 400, body: JSON.stringify({ error: "Question missing" }) };
 
-    if (!question) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Question missing" }) };
-    }
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: `Tu ek trading tutor hai. User abhi "${lessonTitle}" lesson padh raha hai.
-Hinglish mein jawab de (Hindi + English mix, jaise Indians bolte hain).
-Concise rakho — 3-5 sentences max. Examples se samjhao.
-Trading concepts simply explain karo jaise kisi beginner ko bata rahe ho.
-Prop firm aur FTMO context mein relevant rakho.`,
-        messages: [{ role: "user", content: question }]
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 600,
+        messages: [
+          {
+            role: "system",
+            content: `Tu ek expert trading tutor hai. User abhi "${lessonTitle}" lesson padh raha hai.
+Hinglish mein jawab de (Hindi + English mix, natural Indian style).
+4-6 sentences mein clearly explain karo. Real life examples use karo jaise samoosa, dukan, etc.
+Prop firm aur FTMO context relevant rakho. Koi code symbols mat use karo (jaise >, <, ==).
+Simple aur friendly tone rakho.`
+          },
+          { role: "user", content: question }
+        ]
       })
     });
 
     if (!response.ok) {
       const err = await response.json();
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: err.error?.message || "API Error" })
-      };
+      return { statusCode: response.status, body: JSON.stringify({ error: err.error?.message || "Groq API Error" }) };
     }
 
     const data = await response.json();
-    const answer = data.content?.[0]?.text || "Jawab nahi mila, dobara try karo.";
+    const answer = data.choices?.[0]?.message?.content || "Jawab nahi mila, dobara try karo.";
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ answer })
     };
-
   } catch (err) {
-    console.error("Function error:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Server error: " + err.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: "Server error: " + err.message }) };
   }
 };

@@ -1,72 +1,104 @@
-# 🚀 Trading Academy — Netlify Setup Guide
+# 🚀 Trading Academy — Setup Guide
 
 ## Folder Structure
 ```
 trading-academy/
-├── index.html                   ← Main app
-├── netlify.toml                 ← Netlify config
+├── index.html                  ← Main course (12 lessons + AI tutor + visual charts)
+├── demo-trade.html             ← Live paper trading simulator
+├── netlify.toml                ← Netlify config
 ├── netlify/
 │   └── functions/
-│       └── chat.js              ← API proxy (API key yahan safe rahti hai)
+│       └── chat.js             ← API proxy (Groq — FREE tier)
 └── README.md
 ```
 
 ---
 
-## Step 1 — Anthropic API Key Lo
-1. https://console.anthropic.com pe jaao
-2. Login karo → API Keys → "Create Key"
-3. Key copy karke safe jagah rakh lo
+## Step 1 — FREE Groq API Key Lo
+
+1. https://console.groq.com pe jaao
+2. Google se login karo (free hai)
+3. Left sidebar → "API Keys" → "Create API Key"
+4. Key copy karo — `gsk_xxxxxxxxxx` se shuru hogi
 
 ---
 
-## Step 2 — Netlify pe Deploy Karo
+## Step 2 — GitHub pe Upload Karo
 
-### Option A — Drag & Drop (Sabse Aasaan)
-1. https://netlify.com pe login karo
-2. Sites → "Add new site" → "Deploy manually"
-3. **Poora `trading-academy` folder drag karо** (sirf index.html nahi, poora folder)
-4. Deploy ho jaayega
-
-### Option B — GitHub se (Recommended)
-1. GitHub pe naya repo banao: `trading-academy`
-2. Ye sari files upload karo
-3. Netlify → "Import from Git" → GitHub select karo → Repo select karo
-4. Build settings: Publish directory = `.` (dot)
-5. Deploy karo
+1. https://github.com pe login karo
+2. "+" → "New repository" → Name: `trading-academy` → Public → Create
+3. "uploading an existing file" click karo
+4. Poora `trading-academy` folder ka andar ka content drag karo:
+   - index.html ✅
+   - demo-trade.html ✅
+   - netlify.toml ✅
+   - README.md ✅
+   - netlify/ folder ✅ (ye zaroor include karo)
+5. "Commit changes" click karo
 
 ---
 
-## Step 3 — API Key Environment Variable Set Karo (ZAROORI)
-1. Netlify Dashboard → Apni site kholo
-2. **Site configuration** → **Environment variables**
-3. **"Add a variable"** click karo
-4. Key: `ANTHROPIC_API_KEY`
-5. Value: `sk-ant-...` (teri actual API key)
-6. Save karo
+## Step 3 — Netlify se GitHub Connect Karo
+
+1. https://netlify.com → Login
+2. "Add new site" → "Import an existing project"
+3. "GitHub" click karo → Permission do
+4. `trading-academy` repo select karo
+5. Build settings:
+   - Build command: (khali chhodo)
+   - Publish directory: `.`  (sirf ek dot)
+6. "Deploy site" click karo
 
 ---
 
-## Step 4 — Redeploy Karo
-Environment variable set karne ke baad:
-- Netlify → Deploys → "Trigger deploy" → "Deploy site"
-- 1-2 minute wait karo
-- Ab AI Tutor kaam karega ✅
+## Step 4 — Groq API Key Set Karo ← ZAROORI
+
+Deploy hone ke baad:
+
+1. Netlify Dashboard → Apni site pe click karo
+2. Top menu: **"Site configuration"** click karo
+3. Left sidebar: **"Environment variables"** click karo
+4. **"Add a variable"** button dabao
+5. Key: `GROQ_API_KEY`
+6. Value: `gsk_xxxxxxxxxx` (teri actual key paste karo)
+7. **Save** karo
+
+---
+
+## Step 5 — Redeploy Karo
+
+1. Top menu: **"Deploys"** click karo
+2. **"Trigger deploy"** dropdown → **"Deploy site"**
+3. 1-2 minute wait karo
+4. ✅ Done! AI Tutor kaam karega
+
+---
+
+## Kya Kya Kaam Karega
+
+- ✅ 12 complete lessons with visual charts
+- ✅ AI Tutor — Hinglish mein sawaal pucho
+- ✅ Progress save hoga (localStorage)
+- ✅ Live Demo Trading Simulator (EUR/USD)
+- ✅ Paper trades ka P&L track hoga
+- ✅ Trade history save hogi
 
 ---
 
 ## ⚠️ Common Mistakes
-- Sirf `index.html` upload kiya, `netlify/functions/` folder nahi → Function work nahi karega
-- API key set nahi ki → 401 error aayega
-- Poora folder drag karna hai, andar ki files ek ek nahi
+
+| Galti | Fix |
+|-------|-----|
+| Sirf index.html upload kiya | Poora folder content chahiye, `netlify/` bhi |
+| Variable naam galat likha | Exactly `GROQ_API_KEY` — case sensitive |
+| Redeploy nahi kiya | Environment variable ke baad redeploy zaroori |
+| `netlify/functions/chat.js` nahi mila | Functions tab mein `chat` function nahi dikhega |
 
 ---
 
-## Testing
-Deploy ke baad:
-1. Site kholo
-2. Kisi bhi lesson mein jaao
-3. AI Tutor mein kuch pucho
-4. Response aana chahiye ✅
+## Debug
 
-Agar error aaye → Netlify Dashboard → Functions → `chat` → Logs dekho
+Agar AI kaam na kare:
+- Netlify → Functions tab → `chat` function dikhna chahiye
+- `chat` click karo → "Logs" → Error dekho
+- Most common error: `GROQ_API_KEY` sahi se set nahi hua
