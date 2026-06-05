@@ -2,218 +2,307 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Demo Trader — Real Forex Charts</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Demo Trader — Real Forex</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
+  :root{
     --bg:#0a0a0f;--surface:#12121a;--card:#1a1a26;--border:#2a2a3a;
     --accent:#00e5ff;--accent2:#7c3aed;--green:#00ff88;--red:#ff4466;
     --yellow:#ffd60a;--text:#e8e8f0;--muted:#6b6b8a;
   }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;}
+  body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
-  /* HEADER */
-  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;flex-wrap:wrap;}
-  .logo{display:flex;align-items:center;gap:8px;margin-right:8px;}
-  .logo-box{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#000;font-family:'Syne',sans-serif;}
-  .logo h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;}
-  .logo h1 span{color:var(--accent);}
-
-  /* PAIR TABS */
-  .pair-tabs{display:flex;gap:4px;flex-wrap:wrap;}
-  .pair-tab{padding:5px 10px;border-radius:5px;font-size:11px;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;transition:all 0.15s;}
-  .pair-tab:hover{color:var(--text);border-color:var(--text);}
-  .pair-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
-
-  /* PRICE BAR */
-  .price-bar{display:flex;align-items:center;gap:16px;margin-left:auto;font-size:12px;}
-  .live-price{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);}
-  .price-meta{font-size:10px;color:var(--muted);}
-  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-  .back-link{margin-left:8px;font-size:10px;color:var(--muted);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:5px;}
+  /* ── TOPBAR ── */
+  .topbar{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 12px;border-bottom:1px solid var(--border);
+    background:var(--surface);flex-shrink:0;
+  }
+  .logo-box{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#000;flex-shrink:0;}
+  .logo-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;}
+  .logo-title span{color:var(--accent);}
+  .back-link{margin-left:auto;font-size:10px;color:var(--muted);text-decoration:none;padding:4px 9px;border:1px solid var(--border);border-radius:5px;flex-shrink:0;}
   .back-link:hover{color:var(--text);}
 
-  /* STATS */
-  .stats-row{display:flex;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;overflow-x:auto;}
-  .stat{padding:8px 16px;border-right:1px solid var(--border);min-width:110px;flex-shrink:0;}
-  .stat-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
-  .stat-val{font-size:14px;font-weight:700;font-family:'Syne',sans-serif;}
+  /* ── PAIR TABS ── */
+  .pair-row{
+    display:flex;gap:5px;padding:7px 12px;
+    overflow-x:auto;border-bottom:1px solid var(--border);
+    background:var(--surface);flex-shrink:0;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .pair-row::-webkit-scrollbar{display:none;}
+  .pair-tab{
+    padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;
+    background:var(--card);border:1px solid var(--border);color:var(--muted);
+    font-family:'Space Mono',monospace;white-space:nowrap;flex-shrink:0;
+    transition:all 0.15s;
+  }
+  .pair-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+
+  /* ── STATS ── */
+  .stats-row{
+    display:flex;overflow-x:auto;border-bottom:1px solid var(--border);
+    background:var(--surface);flex-shrink:0;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .stats-row::-webkit-scrollbar{display:none;}
+  .stat{padding:6px 12px;border-right:1px solid var(--border);flex-shrink:0;}
+  .sl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .sv{font-size:13px;font-weight:700;font-family:'Syne',sans-serif;}
   .g{color:var(--green);}.r{color:var(--red);}.a{color:var(--accent);}
 
-  /* MAIN */
-  .main{display:flex;flex:1;overflow:hidden;}
-  .chart-col{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-  #tradingview_chart{flex:1;width:100%;}
+  /* ── MAIN LAYOUT ── */
+  .main{flex:1;display:flex;overflow:hidden;min-height:0;}
 
-  /* PANEL */
-  .panel{width:300px;min-width:280px;display:flex;flex-direction:column;border-left:1px solid var(--border);overflow-y:auto;background:var(--surface);}
-  .panel::-webkit-scrollbar{width:4px;}
+  /* Desktop: side by side */
+  .chart-col{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+  #tv-chart{flex:1;min-height:0;}
+
+  .panel{
+    width:300px;min-width:280px;flex-shrink:0;
+    display:flex;flex-direction:column;
+    border-left:1px solid var(--border);
+    overflow-y:auto;background:var(--surface);
+  }
+  .panel::-webkit-scrollbar{width:3px;}
   .panel::-webkit-scrollbar-thumb{background:var(--border);}
-  .section{border-bottom:1px solid var(--border);}
-  .section-title{padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:var(--card);}
-  .section-body{padding:10px 12px;}
 
-  .input-label{font-size:10px;color:var(--muted);margin-bottom:3px;display:block;}
-  .tinput{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;}
-  .tinput:focus{border-color:var(--accent);}
-  select.tinput{cursor:pointer;}
+  /* Mobile: stacked */
+  @media(max-width:680px){
+    .main{flex-direction:column;}
+    .chart-col{flex:0 0 46vh;min-height:0;}
+    #tv-chart{height:100%;}
+    .panel{width:100%;min-width:100%;border-left:none;border-top:1px solid var(--border);flex:1;min-height:0;}
+  }
 
-  .rr-info{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.8;}
-  .rr-info span{color:var(--accent);}
+  /* ── PRICE SET BOX ── */
+  .price-set-box{
+    background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.3);
+    border-radius:10px;margin:10px;padding:10px 12px;
+  }
+  .psb-title{font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+  .psb-row{display:flex;gap:6px;align-items:center;}
+  .psb-input{
+    flex:1;background:var(--bg);border:1px solid var(--border);
+    color:var(--green);padding:10px 10px;border-radius:7px;
+    font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+    outline:none;width:100%;
+  }
+  .psb-input:focus{border-color:var(--accent);}
+  .psb-input::placeholder{color:var(--muted);font-size:13px;font-weight:400;}
+  .psb-btn{
+    background:linear-gradient(135deg,var(--accent2),var(--accent));
+    border:none;color:#fff;padding:10px 14px;border-radius:7px;
+    font-family:'Syne',sans-serif;font-size:12px;font-weight:800;cursor:pointer;
+    white-space:nowrap;
+  }
+  .psb-hint{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .psb-hint strong{color:var(--yellow);}
+  .cur-price-display{
+    font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+    color:var(--accent);margin-top:4px;
+  }
 
-  .bs-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;}
-  .buy-btn{background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);padding:10px;border-radius:7px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;text-align:center;transition:all 0.15s;}
-  .buy-btn:hover{background:rgba(0,255,136,0.2);}
-  .sell-btn{background:rgba(255,68,102,0.1);border:1px solid var(--red);color:var(--red);padding:10px;border-radius:7px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;text-align:center;transition:all 0.15s;}
-  .sell-btn:hover{background:rgba(255,68,102,0.2);}
+  /* ── PANEL SECTIONS ── */
+  .psec{border-bottom:1px solid var(--border);}
+  .psec-title{padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:var(--card);}
+  .psec-body{padding:10px 12px;}
 
-  .trade-card{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;font-size:11px;}
-  .tc-head{display:flex;justify-content:space-between;margin-bottom:5px;align-items:center;}
-  .type-badge{padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700;}
-  .badge-buy{background:rgba(0,255,136,0.15);color:var(--green);}
-  .badge-sell{background:rgba(255,68,102,0.15);color:var(--red);}
-  .tc-detail{color:var(--muted);font-size:10px;line-height:1.8;}
-  .close-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 8px;border-radius:4px;font-size:9px;cursor:pointer;font-family:'Space Mono',monospace;margin-top:5px;}
+  .lbl{font-size:10px;color:var(--muted);margin-bottom:3px;display:block;}
+  .inp{
+    width:100%;background:var(--bg);border:1px solid var(--border);
+    color:var(--text);padding:8px 10px;border-radius:6px;
+    font-family:'Space Mono',monospace;font-size:12px;outline:none;margin-bottom:8px;
+  }
+  .inp:focus{border-color:var(--accent);}
+
+  .rr-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.9;}
+  .rr-box span{color:var(--accent);font-weight:700;}
+
+  .bs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+  .buy-btn,.sell-btn{
+    padding:13px 8px;border-radius:8px;font-family:'Syne',sans-serif;
+    font-size:16px;font-weight:800;cursor:pointer;text-align:center;
+    transition:all 0.15s;line-height:1.4;
+  }
+  .buy-btn{background:rgba(0,255,136,0.12);border:2px solid var(--green);color:var(--green);}
+  .buy-btn:hover:not(:disabled){background:rgba(0,255,136,0.22);}
+  .sell-btn{background:rgba(255,68,102,0.12);border:2px solid var(--red);color:var(--red);}
+  .sell-btn:hover:not(:disabled){background:rgba(255,68,102,0.22);}
+  .buy-btn:disabled,.sell-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .btn-sub{font-size:9px;font-weight:400;display:block;margin-top:2px;}
+
+  /* Update P&L row */
+  .update-row{display:flex;gap:6px;align-items:center;}
+  .update-inp{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:'Space Mono',monospace;font-size:11px;outline:none;}
+  .update-inp:focus{border-color:var(--green);}
+  .update-btn{background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);padding:7px 10px;border-radius:6px;font-size:10px;cursor:pointer;white-space:nowrap;font-family:'Space Mono',monospace;}
+  .update-btn:hover{background:rgba(0,255,136,0.2);}
+
+  /* Trade cards */
+  .trade-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+  .tc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+  .tbadge{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;}
+  .tbuy{background:rgba(0,255,136,0.15);color:var(--green);}
+  .tsell{background:rgba(255,68,102,0.15);color:var(--red);}
+  .tc-detail{font-size:10px;color:var(--muted);line-height:1.8;}
+  .close-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;font-size:9px;cursor:pointer;font-family:'Space Mono',monospace;margin-top:6px;}
   .close-btn:hover{border-color:var(--red);color:var(--red);}
 
-  .hist-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:10px;}
+  .hist-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px;}
   .hist-row:last-child{border:none;}
-  .reset-btn{width:100%;background:rgba(255,68,102,0.08);border:1px solid var(--red);color:var(--red);padding:7px;border-radius:6px;font-size:10px;cursor:pointer;font-family:'Space Mono',monospace;margin-top:6px;}
-  .reset-btn:hover{background:rgba(255,68,102,0.15);}
-
-  .empty{font-size:10px;color:var(--muted);text-align:center;padding:14px;line-height:1.8;}
-
-  .price-note{font-size:9px;color:var(--muted);text-align:center;padding:4px;background:rgba(255,214,10,0.04);border-top:1px solid var(--border);}
-
-  @media(max-width:700px){
-    .panel{width:100%;min-width:100%;border-left:none;border-top:1px solid var(--border);max-height:50vh;}
-    .main{flex-direction:column;}
-    #tradingview_chart{height:45vh;}
-  }
+  .reset-btn{width:100%;background:rgba(255,68,102,0.08);border:1px solid rgba(255,68,102,0.4);color:var(--red);padding:8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:'Space Mono',monospace;margin-top:8px;}
+  .empty{font-size:10px;color:var(--muted);text-align:center;padding:16px;line-height:1.9;}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo">
-    <div class="logo-box">FX</div>
-    <h1>Real <span>Forex</span></h1>
-  </div>
-
-  <div class="pair-tabs" id="pair-tabs">
-    <button class="pair-tab active" data-pair="EURUSD" data-tv="FX_IDC:EURUSD" data-base="EUR" data-quote="USD" data-pip="10000">EUR/USD</button>
-    <button class="pair-tab" data-pair="GBPUSD" data-tv="FX_IDC:GBPUSD" data-base="GBP" data-quote="USD" data-pip="10000">GBP/USD</button>
-    <button class="pair-tab" data-pair="USDJPY" data-tv="FX_IDC:USDJPY" data-base="USD" data-quote="JPY" data-pip="100">USD/JPY</button>
-    <button class="pair-tab" data-pair="AUDUSD" data-tv="FX_IDC:AUDUSD" data-base="AUD" data-quote="USD" data-pip="10000">AUD/USD</button>
-    <button class="pair-tab" data-pair="USDCHF" data-tv="FX_IDC:USDCHF" data-base="USD" data-quote="CHF" data-pip="10000">USD/CHF</button>
-    <button class="pair-tab" data-pair="XAUUSD" data-tv="TVC:GOLD" data-base="XAU" data-quote="USD" data-pip="10">XAU/USD 🥇</button>
-    <button class="pair-tab" data-pair="US30" data-tv="TVC:DJI" data-base="US30" data-quote="" data-pip="1">US30 📈</button>
-    <button class="pair-tab" data-pair="NAS100" data-tv="TVC:NDX" data-base="NAS100" data-quote="" data-pip="1">NAS100</button>
-  </div>
-
-  <div class="price-bar">
-    <div class="live-dot"></div>
-    <div>
-      <div class="live-price" id="live-price">—</div>
-      <div class="price-meta" id="price-change">Fetching...</div>
-    </div>
-  </div>
+  <div class="logo-box">FX</div>
+  <div class="logo-title">Real <span>Forex</span></div>
   <a class="back-link" href="index.html">← Course</a>
+</div>
+
+<!-- PAIR TABS -->
+<div class="pair-row" id="pair-row">
+  <button class="pair-tab active" data-pair="EURUSD" data-tv="FX_IDC:EURUSD" data-pip="10000">EUR/USD</button>
+  <button class="pair-tab" data-pair="GBPUSD" data-tv="FX_IDC:GBPUSD" data-pip="10000">GBP/USD</button>
+  <button class="pair-tab" data-pair="USDJPY" data-tv="FX_IDC:USDJPY" data-pip="100">USD/JPY</button>
+  <button class="pair-tab" data-pair="AUDUSD" data-tv="FX_IDC:AUDUSD" data-pip="10000">AUD/USD</button>
+  <button class="pair-tab" data-pair="USDCHF" data-tv="FX_IDC:USDCHF" data-pip="10000">USD/CHF</button>
+  <button class="pair-tab" data-pair="XAUUSD" data-tv="TVC:GOLD" data-pip="10">GOLD 🥇</button>
+  <button class="pair-tab" data-pair="US30" data-tv="TVC:DJI" data-pip="1">US30</button>
+  <button class="pair-tab" data-pair="NAS100" data-tv="TVC:NDX" data-pip="1">NAS100</button>
 </div>
 
 <!-- STATS -->
 <div class="stats-row">
-  <div class="stat"><div class="stat-label">Balance</div><div class="stat-val a" id="s-balance">$10,000.00</div></div>
-  <div class="stat"><div class="stat-label">Open P&L</div><div class="stat-val" id="s-opnl">$0.00</div></div>
-  <div class="stat"><div class="stat-label">Total P&L</div><div class="stat-val" id="s-tpnl">$0.00</div></div>
-  <div class="stat"><div class="stat-label">Trades</div><div class="stat-val" id="s-trades">0</div></div>
-  <div class="stat"><div class="stat-label">Win Rate</div><div class="stat-val" id="s-wr">—</div></div>
-  <div class="stat"><div class="stat-label">Pair</div><div class="stat-val a" id="s-pair">EUR/USD</div></div>
+  <div class="stat"><div class="sl">Balance</div><div class="sv a" id="s-bal">$10,000.00</div></div>
+  <div class="stat"><div class="sl">Set Price</div><div class="sv a" id="s-px">—</div></div>
+  <div class="stat"><div class="sl">Open P&L</div><div class="sv" id="s-opnl">$0.00</div></div>
+  <div class="stat"><div class="sl">Total P&L</div><div class="sv" id="s-tpnl">$0.00</div></div>
+  <div class="stat"><div class="sl">Trades</div><div class="sv" id="s-trades">0</div></div>
+  <div class="stat"><div class="sl">Win Rate</div><div class="sv" id="s-wr">—</div></div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <!-- REAL CHART -->
+  <!-- CHART -->
   <div class="chart-col">
-    <div id="tradingview_chart"></div>
+    <div id="tv-chart"></div>
   </div>
 
   <!-- PANEL -->
   <div class="panel">
 
-    <!-- ORDER ENTRY -->
-    <div class="section">
-      <div class="section-title">📊 Trade Dalo</div>
-      <div class="section-body">
-        <label class="input-label">Lot Size</label>
-        <select class="tinput" id="lot">
-          <option value="0.01">0.01 Micro Lot</option>
-          <option value="0.05">0.05</option>
-          <option value="0.10">0.10 Mini Lot</option>
-          <option value="0.25">0.25</option>
-          <option value="0.50">0.50</option>
-          <option value="1.00">1.00 Standard</option>
-        </select>
-        <label class="input-label">Stop Loss (pips)</label>
-        <input class="tinput" type="number" id="sl-pips" value="30" min="1">
-        <label class="input-label">Take Profit (pips)</label>
-        <input class="tinput" type="number" id="tp-pips" value="60" min="1">
-        <div class="rr-info">
-          RR Ratio: <span id="rr">1 : 2.0</span> &nbsp;|&nbsp;
-          Max Loss: <span id="ml">-$3.00</span> &nbsp;|&nbsp;
-          Max Profit: <span id="mp">+$6.00</span>
+    <!-- PRICE SET -->
+    <div class="price-set-box">
+      <div class="psb-title">⬆ Step 1 — Chart Se Price Dekho Aur Yahan Daalo</div>
+      <div class="psb-row">
+        <input class="psb-input" id="manual-price" type="number" step="0.00001" placeholder="e.g. 1.08540">
+        <button class="psb-btn" onclick="setPrice()">SET ✓</button>
+      </div>
+      <div class="psb-hint">Chart pe upar-left mein price dikh rahi hogi — <strong>woh type karo → SET dabao</strong> → BUY/SELL active ho jaayenge.</div>
+      <div class="cur-price-display" id="cur-price-display" style="display:none">✅ Set Price: <span id="price-show">—</span></div>
+    </div>
+
+    <!-- UPDATE P&L -->
+    <div class="psec">
+      <div class="psec-title">🔄 Price Update Karo (P&L Refresh)</div>
+      <div class="psec-body">
+        <div class="update-row">
+          <input class="update-inp" id="update-price" type="number" step="0.00001" placeholder="New current price...">
+          <button class="update-btn" onclick="updatePrice()">Update ✓</button>
         </div>
-        <div class="bs-row">
-          <button class="buy-btn" onclick="trade('BUY')">📈 BUY<br><small id="ask-px" style="font-weight:400;font-size:10px">—</small></button>
-          <button class="sell-btn" onclick="trade('SELL')">📉 SELL<br><small id="bid-px" style="font-weight:400;font-size:10px">—</small></button>
+        <div style="font-size:9px;color:var(--muted);margin-top:4px;">Jab bhi chart pe price badal jaaye — yahan daalo. SL/TP auto check ho jaayega.</div>
+      </div>
+    </div>
+
+    <!-- TRADE ENTRY -->
+    <div class="psec">
+      <div class="psec-title">📊 Step 2 — Trade Lo</div>
+      <div class="psec-body">
+        <label class="lbl">Lot Size</label>
+        <select class="inp" id="lot">
+          <option value="0.01">0.01 — Micro ($0.10/pip)</option>
+          <option value="0.05">0.05 ($0.50/pip)</option>
+          <option value="0.10">0.10 — Mini ($1.00/pip)</option>
+          <option value="0.25">0.25 ($2.50/pip)</option>
+          <option value="0.50">0.50 ($5.00/pip)</option>
+          <option value="1.00">1.00 — Standard ($10/pip)</option>
+        </select>
+
+        <label class="lbl">Stop Loss — pips mein</label>
+        <input class="inp" type="number" id="sl-pips" value="30" min="1">
+
+        <label class="lbl">Take Profit — pips mein</label>
+        <input class="inp" type="number" id="tp-pips" value="60" min="1">
+
+        <div class="rr-box">
+          RR: <span id="rr">1:2.0</span> &nbsp;|&nbsp;
+          Max Loss: <span id="ml" style="color:var(--red)">-$3.00</span> &nbsp;|&nbsp;
+          Max Profit: <span id="mp" style="color:var(--green)">+$6.00</span>
+        </div>
+
+        <div class="bs-grid">
+          <button class="buy-btn" id="buy-btn" onclick="placeTrade('BUY')" disabled>
+            📈 BUY
+            <span class="btn-sub" id="ask-px">SET price pehle</span>
+          </button>
+          <button class="sell-btn" id="sell-btn" onclick="placeTrade('SELL')" disabled>
+            📉 SELL
+            <span class="btn-sub" id="bid-px">SET price pehle</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- OPEN TRADES -->
-    <div class="section">
-      <div class="section-title">📂 Open Trades</div>
-      <div class="section-body" id="open-panel"><div class="empty">Koi open trade nahi.<br>Upar BUY ya SELL dabao!</div></div>
+    <div class="psec">
+      <div class="psec-title">📂 Open Trades</div>
+      <div class="psec-body" id="open-panel">
+        <div class="empty">Koi open trade nahi.<br>Price SET karo → BUY/SELL karo!</div>
+      </div>
     </div>
 
     <!-- HISTORY -->
-    <div class="section">
-      <div class="section-title">📋 History</div>
-      <div class="section-body" id="hist-panel"><div class="empty">Closed trades yahan aayenge.</div></div>
-      <div class="section-body" style="padding-top:0">
+    <div class="psec">
+      <div class="psec-title">📋 Trade History</div>
+      <div class="psec-body" id="hist-panel">
+        <div class="empty">Closed trades yahan aayenge.</div>
+      </div>
+      <div class="psec-body" style="padding-top:0">
         <button class="reset-btn" onclick="resetAcc()">🔄 Account Reset ($10,000)</button>
       </div>
     </div>
 
-    <div class="price-note">⏱ Price har 60 seconds mein update hoti hai | TradingView chart real-time hai</div>
-  </div>
-</div>
+  </div><!-- /panel -->
+</div><!-- /main -->
 
-<!-- TRADINGVIEW -->
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// ===== STATE =====
+// ── STATE ──
 let state = (() => {
-  try { const s = localStorage.getItem('fxDemo'); if(s) return JSON.parse(s); } catch(e){}
+  try { const s = localStorage.getItem('fxDemo3'); if(s) return JSON.parse(s); } catch(e){}
   return { balance:10000, totalPnl:0, openTrades:[], closedTrades:[] };
 })();
 
-let currentPrice = 0, prevPrice = 0;
-let activePair = { pair:'EURUSD', tv:'FX_IDC:EURUSD', base:'EUR', quote:'USD', pip:10000 };
-let tvWidget = null;
-let priceTimer = null;
+let currentPrice = 0;
+let activePair = 'EURUSD';
+let activePip = 10000;
 
-// ===== TRADINGVIEW =====
-function loadChart(tvSymbol) {
-  document.getElementById('tradingview_chart').innerHTML = '';
-  tvWidget = new TradingView.widget({
+// ── TRADINGVIEW ──
+function loadChart(tvSym) {
+  document.getElementById('tv-chart').innerHTML = '';
+  new TradingView.widget({
     autosize: true,
-    symbol: tvSymbol,
+    symbol: tvSym,
     interval: '60',
     timezone: 'Asia/Kolkata',
     theme: 'dark',
@@ -223,249 +312,233 @@ function loadChart(tvSymbol) {
     enable_publishing: false,
     withdateranges: true,
     hide_side_toolbar: false,
-    allow_symbol_change: true,
+    allow_symbol_change: false,
     save_image: false,
     studies: ['RSI@tv-basicstudies','MACD@tv-basicstudies','MAExp@tv-basicstudies'],
-    container_id: 'tradingview_chart',
+    container_id: 'tv-chart',
     overrides: {
-      'paneProperties.background': '#0a0a0f',
-      'paneProperties.backgroundType': 'solid',
+      'paneProperties.background':'#0a0a0f',
+      'paneProperties.backgroundType':'solid',
     }
   });
 }
 
-// ===== PRICE FETCH =====
-async function fetchPrice() {
-  const { base, quote, pair } = activePair;
-  try {
-    let price = null;
-
-    if (pair === 'XAUUSD') {
-      // Gold — use free metal price endpoint
-      const r = await fetch('https://open.er-api.com/v6/latest/XAU');
-      const d = await r.json();
-      price = d.rates && d.rates['USD'] ? d.rates['USD'] : null;
-    } else if (pair === 'US30' || pair === 'NAS100') {
-      // Indices — frankfurter doesn't support; show note
-      document.getElementById('live-price').textContent = 'Chart See Karo';
-      document.getElementById('price-change').textContent = 'Index price chart mein live hai';
-      return;
-    } else {
-      // Forex pairs via Frankfurter (ECB rates, CORS friendly, free)
-      const url = `https://api.frankfurter.app/latest?from=${base}&to=${quote}`;
-      const r = await fetch(url);
-      const d = await r.json();
-      price = d.rates && d.rates[quote] ? d.rates[quote] : null;
-    }
-
-    if (price) {
-      prevPrice = currentPrice || price;
-      currentPrice = price;
-      updatePriceDisplay();
-      checkSLTP();
-      updateOpenPnl();
-    }
-  } catch(e) {
-    document.getElementById('price-change').textContent = 'Price fetch error — chart dekho';
-  }
-}
-
-function updatePriceDisplay() {
-  if (!currentPrice) return;
-  const el = document.getElementById('live-price');
-  const decimals = activePair.pip >= 100 ? 3 : 5;
-  el.textContent = currentPrice.toFixed(decimals);
-  el.style.color = currentPrice >= prevPrice ? 'var(--green)' : 'var(--red)';
-
-  const changePips = ((currentPrice - prevPrice) * activePair.pip).toFixed(1);
-  const el2 = document.getElementById('price-change');
-  el2.textContent = (changePips >= 0 ? '+' : '') + changePips + ' pips since last update';
-  el2.style.color = changePips >= 0 ? 'var(--green)' : 'var(--red)';
-
-  const spread = 2 / activePair.pip;
-  document.getElementById('ask-px').textContent = (currentPrice + spread).toFixed(decimals);
-  document.getElementById('bid-px').textContent = (currentPrice - spread).toFixed(decimals);
-  updateRR();
-}
-
-// ===== PAIR SELECT =====
-document.getElementById('pair-tabs').addEventListener('click', e => {
+// ── PAIR SELECT ──
+document.getElementById('pair-row').addEventListener('click', e => {
   const btn = e.target.closest('.pair-tab');
-  if (!btn) return;
+  if(!btn) return;
   document.querySelectorAll('.pair-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  activePair = {
-    pair: btn.dataset.pair,
-    tv: btn.dataset.tv,
-    base: btn.dataset.base,
-    quote: btn.dataset.quote,
-    pip: parseFloat(btn.dataset.pip)
-  };
-  document.getElementById('s-pair').textContent = btn.textContent.trim();
-  document.getElementById('live-price').textContent = '—';
-  document.getElementById('price-change').textContent = 'Loading...';
-  currentPrice = 0; prevPrice = 0;
-  loadChart(activePair.tv);
-  fetchPrice();
+  activePair = btn.dataset.pair;
+  activePip = parseFloat(btn.dataset.pip);
+  // Reset price
+  currentPrice = 0;
+  document.getElementById('manual-price').value = '';
+  document.getElementById('cur-price-display').style.display = 'none';
+  document.getElementById('s-px').textContent = '—';
+  document.getElementById('buy-btn').disabled = true;
+  document.getElementById('sell-btn').disabled = true;
+  document.getElementById('ask-px').textContent = 'SET price pehle';
+  document.getElementById('bid-px').textContent = 'SET price pehle';
+  loadChart(btn.dataset.tv);
+  updateRR();
 });
 
-// ===== RR CALC =====
+// ── SET PRICE ──
+function setPrice() {
+  const val = parseFloat(document.getElementById('manual-price').value);
+  if(!val || val <= 0) {
+    document.getElementById('manual-price').style.border = '2px solid var(--red)';
+    setTimeout(() => document.getElementById('manual-price').style.border = '1px solid var(--border)', 1500);
+    return;
+  }
+  currentPrice = val;
+  applyPrice();
+}
+
+function updatePrice() {
+  const val = parseFloat(document.getElementById('update-price').value);
+  if(!val || val <= 0) return;
+  currentPrice = val;
+  document.getElementById('manual-price').value = val;
+  applyPrice();
+  checkSLTP();
+}
+
+function applyPrice() {
+  const dec = activePip >= 100 ? 3 : 5;
+  const spread = 2 / activePip;
+  document.getElementById('s-px').textContent = currentPrice.toFixed(dec);
+  document.getElementById('price-show').textContent = currentPrice.toFixed(dec);
+  document.getElementById('cur-price-display').style.display = 'block';
+  document.getElementById('ask-px').textContent = 'Ask: ' + (currentPrice + spread).toFixed(dec);
+  document.getElementById('bid-px').textContent = 'Bid: ' + (currentPrice - spread).toFixed(dec);
+  document.getElementById('buy-btn').disabled = false;
+  document.getElementById('sell-btn').disabled = false;
+  updateOpenPnl();
+}
+
+// ── RR CALC ──
 function updateRR() {
   const sl = parseFloat(document.getElementById('sl-pips').value) || 30;
   const tp = parseFloat(document.getElementById('tp-pips').value) || 60;
   const lot = parseFloat(document.getElementById('lot').value) || 0.01;
-  const pipVal = lot / 0.01 * 0.1;
-  document.getElementById('rr').textContent = '1 : ' + (tp/sl).toFixed(1);
-  document.getElementById('ml').textContent = '-$' + (sl * pipVal).toFixed(2);
-  document.getElementById('mp').textContent = '+$' + (tp * pipVal).toFixed(2);
+  const pv = lot / 0.01 * 0.1;
+  document.getElementById('rr').textContent = '1:' + (tp/sl).toFixed(1);
+  document.getElementById('ml').textContent = '-$' + (sl*pv).toFixed(2);
+  document.getElementById('mp').textContent = '+$' + (tp*pv).toFixed(2);
 }
 ['sl-pips','tp-pips','lot'].forEach(id => document.getElementById(id).addEventListener('input', updateRR));
 
-// ===== TRADING =====
-function trade(type) {
-  if (!currentPrice) { alert('Price load hone do, thoda wait karo.'); return; }
+// ── PLACE TRADE ──
+function placeTrade(type) {
+  if(!currentPrice) return;
   const lot = parseFloat(document.getElementById('lot').value);
   const slPips = parseFloat(document.getElementById('sl-pips').value);
   const tpPips = parseFloat(document.getElementById('tp-pips').value);
-  const spread = 2 / activePair.pip;
+  const spread = 2 / activePip;
   const entry = type === 'BUY' ? currentPrice + spread : currentPrice - spread;
-  const sl = type === 'BUY' ? entry - slPips / activePair.pip : entry + slPips / activePair.pip;
-  const tp = type === 'BUY' ? entry + tpPips / activePair.pip : entry - tpPips / activePair.pip;
-  const pipVal = lot / 0.01 * 0.1;
-  const decimals = activePair.pip >= 100 ? 3 : 5;
+  const sl = type === 'BUY' ? entry - slPips/activePip : entry + slPips/activePip;
+  const tp = type === 'BUY' ? entry + tpPips/activePip : entry - tpPips/activePip;
+  const pv = lot / 0.01 * 0.1;
+  const dec = activePip >= 100 ? 3 : 5;
 
   state.openTrades.push({
-    id: Date.now(), type, lot, entry: +entry.toFixed(decimals+2),
-    sl: +sl.toFixed(decimals+2), tp: +tp.toFixed(decimals+2),
-    slPips, tpPips, pipVal, pair: activePair.pair, pip: activePair.pip,
+    id: Date.now(), type, lot,
+    entry: +entry.toFixed(dec+2),
+    sl: +sl.toFixed(dec+2),
+    tp: +tp.toFixed(dec+2),
+    slPips, tpPips, pv, pair: activePair, pip: activePip,
     time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
   });
   save(); render();
 }
 
+// ── SL/TP CHECK ──
 function checkSLTP() {
-  if (!currentPrice) return;
   [...state.openTrades].forEach(t => {
-    if (t.pair !== activePair.pair) return;
+    if(t.pair !== activePair || !currentPrice) return;
     let hit = null;
-    if (t.type === 'BUY') {
-      if (currentPrice <= t.sl) hit = 'SL Hit ❌';
-      else if (currentPrice >= t.tp) hit = 'TP Hit ✅';
+    if(t.type==='BUY'){
+      if(currentPrice<=t.sl) hit='SL ❌';
+      else if(currentPrice>=t.tp) hit='TP ✅';
     } else {
-      if (currentPrice >= t.sl) hit = 'SL Hit ❌';
-      else if (currentPrice <= t.tp) hit = 'TP Hit ✅';
+      if(currentPrice>=t.sl) hit='SL ❌';
+      else if(currentPrice<=t.tp) hit='TP ✅';
     }
-    if (hit) closeTrade(t.id, hit, currentPrice);
+    if(hit) closeTrade(t.id, hit, currentPrice);
   });
 }
 
 function closeTrade(id, reason='Manual', exitPx=null) {
-  const idx = state.openTrades.findIndex(t => t.id === id);
-  if (idx === -1) return;
+  const idx = state.openTrades.findIndex(t=>t.id===id);
+  if(idx===-1) return;
   const t = state.openTrades[idx];
   const exit = exitPx || currentPrice || t.entry;
-  const pips = t.type === 'BUY'
-    ? Math.round((exit - t.entry) * t.pip * 10) / 10
-    : Math.round((t.entry - exit) * t.pip * 10) / 10;
-  const pnl = Math.round(pips * t.pipVal * 100) / 100;
+  const pips = t.type==='BUY'
+    ? Math.round((exit-t.entry)*t.pip*10)/10
+    : Math.round((t.entry-exit)*t.pip*10)/10;
+  const pnl = Math.round(pips*t.pv*100)/100;
   state.balance += pnl;
   state.totalPnl += pnl;
-  state.openTrades.splice(idx, 1);
-  state.closedTrades.unshift({ ...t, exit, pnl, pips, reason, exitTime: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) });
-  if (state.closedTrades.length > 50) state.closedTrades.pop();
+  state.openTrades.splice(idx,1);
+  state.closedTrades.unshift({
+    ...t, exit, pnl, pips, reason,
+    exitTime: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+  });
+  if(state.closedTrades.length>50) state.closedTrades.pop();
   save(); render();
 }
 
 function updateOpenPnl() {
-  let openPnl = 0;
+  let total = 0;
   state.openTrades.forEach(t => {
-    if (t.pair !== activePair.pair || !currentPrice) return;
-    const pips = t.type === 'BUY'
-      ? (currentPrice - t.entry) * t.pip
-      : (t.entry - currentPrice) * t.pip;
-    const pnl = pips * t.pipVal;
-    openPnl += pnl;
-    const el = document.getElementById('pnl-' + t.id);
-    if (el) {
-      el.textContent = (pnl>=0?'+':'') + '$' + pnl.toFixed(2);
-      el.style.color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
-    }
+    if(!currentPrice || t.pair!==activePair) return;
+    const pips = t.type==='BUY'
+      ? (currentPrice-t.entry)*t.pip
+      : (t.entry-currentPrice)*t.pip;
+    const pnl = pips * t.pv;
+    total += pnl;
+    const el = document.getElementById('pnl-'+t.id);
+    if(el){ el.textContent=(pnl>=0?'+':'')+'$'+pnl.toFixed(2); el.style.color=pnl>=0?'var(--green)':'var(--red)'; }
   });
-  const el = document.getElementById('s-opnl');
-  el.textContent = (openPnl>=0?'+':'') + '$' + openPnl.toFixed(2);
-  el.className = 'stat-val ' + (openPnl>=0?'g':'r');
+  const el=document.getElementById('s-opnl');
+  el.textContent=(total>=0?'+':'')+'$'+total.toFixed(2);
+  el.className='sv '+(total>=0?'g':'r');
 }
 
-// ===== RENDER =====
+// ── RENDER ──
 function render() {
-  // Open trades
+  // Open
   const op = document.getElementById('open-panel');
-  if (state.openTrades.length === 0) {
-    op.innerHTML = '<div class="empty">Koi open trade nahi.<br>Upar BUY ya SELL dabao!</div>';
+  if(!state.openTrades.length) {
+    op.innerHTML='<div class="empty">Koi open trade nahi.<br>Price SET karo → BUY/SELL karo!</div>';
   } else {
-    op.innerHTML = state.openTrades.map(t => {
-      const decimals = t.pip >= 100 ? 3 : 5;
+    op.innerHTML = state.openTrades.map(t=>{
+      const dec = t.pip>=100?3:5;
       return `<div class="trade-card">
         <div class="tc-head">
-          <span><span class="type-badge badge-${t.type.toLowerCase()}">${t.type}</span> ${t.pair} ${t.lot}L</span>
-          <span id="pnl-${t.id}" style="font-weight:700">$0.00</span>
+          <span><span class="tbadge ${t.type==='BUY'?'tbuy':'tsell'}">${t.type}</span> ${t.pair} ${t.lot}L</span>
+          <span id="pnl-${t.id}" style="font-weight:700">$—</span>
         </div>
         <div class="tc-detail">
-          Entry: ${t.entry.toFixed(decimals)} &nbsp;|&nbsp; ${t.time}<br>
-          SL: <span style="color:var(--red)">${t.sl.toFixed(decimals)}</span> (${t.slPips}p) &nbsp;|&nbsp;
-          TP: <span style="color:var(--green)">${t.tp.toFixed(decimals)}</span> (${t.tpPips}p)
+          Entry: ${t.entry.toFixed(dec)} &nbsp;@&nbsp; ${t.time}<br>
+          SL: <span style="color:var(--red)">${t.sl.toFixed(dec)}</span> (${t.slPips}p)
+          &nbsp;|&nbsp; TP: <span style="color:var(--green)">${t.tp.toFixed(dec)}</span> (${t.tpPips}p)
         </div>
-        <button class="close-btn" onclick="closeTrade(${t.id})">✕ Close</button>
+        <button class="close-btn" onclick="closeTrade(${t.id},'Manual',${currentPrice||t.entry})">✕ Close Trade</button>
       </div>`;
     }).join('');
   }
 
   // History
   const hp = document.getElementById('hist-panel');
-  if (state.closedTrades.length === 0) {
-    hp.innerHTML = '<div class="empty">Closed trades yahan aayenge.</div>';
+  if(!state.closedTrades.length){
+    hp.innerHTML='<div class="empty">Closed trades yahan aayenge.</div>';
   } else {
-    hp.innerHTML = state.closedTrades.slice(0,20).map(t => {
-      const isW = t.pnl > 0;
+    hp.innerHTML = state.closedTrades.slice(0,20).map(t=>{
+      const w=t.pnl>0;
       return `<div class="hist-row">
-        <div><span class="type-badge badge-${t.type.toLowerCase()}">${t.type}</span> <span style="color:var(--muted)">${t.pair} @ ${t.exitTime}</span></div>
-        <div style="color:${isW?'var(--green)':'var(--red)'};font-weight:700">${isW?'+':''}$${t.pnl.toFixed(2)} <span style="font-size:9px;color:var(--muted)">(${t.pips.toFixed(1)}p)</span></div>
+        <div><span class="tbadge ${t.type==='BUY'?'tbuy':'tsell'}">${t.type}</span> <span style="color:var(--muted)">${t.pair} ${t.exitTime} — ${t.reason}</span></div>
+        <div style="color:${w?'var(--green)':'var(--red)'};font-weight:700">${w?'+':''}$${t.pnl.toFixed(2)} <span style="font-size:9px;color:var(--muted)">(${t.pips.toFixed(1)}p)</span></div>
       </div>`;
     }).join('');
   }
 
   // Stats
-  document.getElementById('s-balance').textContent = '$' + state.balance.toFixed(2);
-  const tp = Math.round(state.totalPnl * 100) / 100;
-  const tpEl = document.getElementById('s-tpnl');
-  tpEl.textContent = (tp>=0?'+':'') + '$' + tp.toFixed(2);
-  tpEl.className = 'stat-val ' + (tp>=0?'g':'r');
-  document.getElementById('s-trades').textContent = state.closedTrades.length;
-  const wins = state.closedTrades.filter(t=>t.pnl>0).length;
-  const tot = state.closedTrades.length;
-  const wrEl = document.getElementById('s-wr');
-  if (tot > 0) {
-    wrEl.textContent = Math.round(wins/tot*100) + '%';
-    wrEl.className = 'stat-val ' + (wins/tot>=0.5?'g':'r');
-  } else { wrEl.textContent = '—'; wrEl.className = 'stat-val'; }
-
+  document.getElementById('s-bal').textContent='$'+state.balance.toFixed(2);
+  const tp=Math.round(state.totalPnl*100)/100;
+  const tpEl=document.getElementById('s-tpnl');
+  tpEl.textContent=(tp>=0?'+':'')+'$'+tp.toFixed(2);
+  tpEl.className='sv '+(tp>=0?'g':'r');
+  document.getElementById('s-trades').textContent=state.closedTrades.length;
+  const wins=state.closedTrades.filter(t=>t.pnl>0).length;
+  const tot=state.closedTrades.length;
+  if(tot>0){
+    const wr=Math.round(wins/tot*100);
+    const wrEl=document.getElementById('s-wr');
+    wrEl.textContent=wr+'%';
+    wrEl.className='sv '+(wr>=50?'g':'r');
+  }
   updateOpenPnl();
 }
 
-function save() {
-  try { localStorage.setItem('fxDemo', JSON.stringify({ ...state, closedTrades: state.closedTrades.slice(0,50) })); } catch(e) {}
+function save(){
+  try{ localStorage.setItem('fxDemo3',JSON.stringify({...state,closedTrades:state.closedTrades.slice(0,50)})); }catch(e){}
 }
 
-function resetAcc() {
-  if (!confirm('Account reset karna chahte ho? Sab trades aur history delete ho jaayegi.')) return;
-  state = { balance:10000, totalPnl:0, openTrades:[], closedTrades:[] };
+function resetAcc(){
+  if(!confirm('Account reset karna chahte ho? Sab trades delete honge.')) return;
+  state={balance:10000,totalPnl:0,openTrades:[],closedTrades:[]};
   save(); render();
 }
 
-// ===== INIT =====
-loadChart(activePair.tv);
-fetchPrice();
-priceTimer = setInterval(fetchPrice, 60000); // Update every 60 seconds
+// Enter key support
+document.getElementById('manual-price').addEventListener('keydown',e=>{ if(e.key==='Enter') setPrice(); });
+document.getElementById('update-price').addEventListener('keydown',e=>{ if(e.key==='Enter') updatePrice(); });
+
+// Init
+loadChart('FX_IDC:EURUSD');
 updateRR();
 render();
 </script>
